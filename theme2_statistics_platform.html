@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme 2 · Statistics Study Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0e0c; --bg2:#1a1916; --bg3:#232119; --bg4:#2d2a24;
+  --gold:#c9a96e; --gold-dim:#a07a44; --gold-bright:#e8c87e;
+  --text:#e8e0d0; --text-dim:#9a9080; --text-muted:#6a6050;
+  --t1:#8b7fd4; --t2:#5a9fd4; --t3:#6dbe6d; --t4:#c9a96e;
+  --t5:#e06868; --t6:#f09050; --t7:#45c5c5; --t8:#d4b020;
+  --t9:#d480b8; --t10:#70aed4; --t11:#a882d4;
+  --radius:12px; --radius-sm:8px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; overflow:hidden;}
+
+/* LAYOUT */
+.app{display:flex; height:100vh; overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:260px; min-width:260px; background:var(--bg2); border-right:1px solid rgba(201,169,110,.15); display:flex; flex-direction:column; overflow:hidden; transition:width .3s;}
+.sidebar.collapsed{width:56px; min-width:56px;}
+.sidebar-header{padding:20px 16px 12px; border-bottom:1px solid rgba(201,169,110,.12); display:flex; align-items:center; gap:12px;}
+.sidebar.collapsed .sidebar-header{justify-content:center;}
+.logo-mark{width:36px; height:36px; background:linear-gradient(135deg,var(--gold),var(--gold-dim)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;}
+.logo-text{font-family:'Cormorant Garamond',serif; font-size:13px; line-height:1.3; overflow:hidden;}
+.logo-text strong{display:block; color:var(--gold); font-weight:600;}
+.logo-text span{color:var(--text-dim); font-size:11px;}
+.sidebar.collapsed .logo-text{display:none;}
+
+.nav-section{padding:12px 10px 4px; overflow:hidden;}
+.sidebar.collapsed .nav-label, .sidebar.collapsed .nav-item span{display:none;}
+.nav-label{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); padding:0 6px 6px;}
+.nav-item{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:all .2s; position:relative; border:none; background:none; color:var(--text-dim); width:100%; text-align:left; font-family:'DM Sans',sans-serif; font-size:13px;}
+.nav-item:hover{background:rgba(201,169,110,.08); color:var(--text);}
+.nav-item.active{background:rgba(201,169,110,.15); color:var(--gold);}
+.nav-item .ni{font-size:18px; flex-shrink:0;}
+.sidebar.collapsed .nav-item{justify-content:center;}
+
+.progress-section{margin-top:auto; padding:12px; border-top:1px solid rgba(201,169,110,.12);}
+.sidebar.collapsed .progress-section .progress-text{display:none;}
+.sidebar.collapsed .progress-section{padding:8px;}
+.progress-text{font-size:11px; color:var(--text-dim); margin-bottom:8px;}
+.progress-bar-wrap{background:var(--bg4); border-radius:99px; height:6px; overflow:hidden;}
+.progress-bar-fill{height:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold)); border-radius:99px; transition:width .5s;}
+.progress-stat{font-size:11px; color:var(--gold); margin-top:6px; font-weight:600;}
+
+/* MAIN */
+.main{flex:1; display:flex; flex-direction:column; overflow:hidden;}
+.topbar{padding:16px 28px; border-bottom:1px solid rgba(201,169,110,.1); display:flex; align-items:center; gap:16px;}
+.topbar-title{font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--gold); font-style:italic;}
+.topbar-sub{font-size:12px; color:var(--text-dim); margin-left:auto;}
+.toggle-btn{width:32px; height:32px; border-radius:6px; border:1px solid rgba(201,169,110,.2); background:none; color:var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s;}
+.toggle-btn:hover{background:rgba(201,169,110,.1); color:var(--gold);}
+
+.view-area{flex:1; overflow:hidden; position:relative;}
+.view{display:none; height:100%; overflow-y:auto; padding:28px; animation:fadeIn .3s ease;}
+.view.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADERS */
+.section-head{font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:600; margin-bottom:6px; background:linear-gradient(135deg,var(--gold-bright),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+.section-sub{color:var(--text-dim); font-size:14px; margin-bottom:28px;}
+
+/* TOPIC FILTER BAR */
+.filter-bar{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;}
+.filter-chip{padding:5px 14px; border-radius:99px; border:1.5px solid; font-size:12px; font-weight:500; cursor:pointer; transition:all .2s; background:none; font-family:'DM Sans',sans-serif;}
+.filter-chip.active{color:#0f0e0c; font-weight:600;}
+.filter-chip:hover{opacity:.8;}
+.filter-all{border-color:var(--gold); color:var(--gold);}
+.filter-all.active{background:var(--gold); color:#0f0e0c;}
+
+/* CONCEPT CARDS */
+.cards-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px;}
+.concept-card{background:var(--bg2); border-radius:var(--radius); border:1px solid rgba(255,255,255,.07); overflow:hidden; cursor:pointer; transition:transform .2s, box-shadow .2s; position:relative;}
+.concept-card:hover{transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.4);}
+.cc-header{padding:16px 18px 12px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,.05);}
+.cc-icon{width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;}
+.cc-title{font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; line-height:1.2;}
+.cc-topic-tag{font-size:10px; letter-spacing:.06em; text-transform:uppercase; opacity:.7; margin-top:2px;}
+.cc-arrow{margin-left:auto; color:var(--text-muted); transition:transform .3s; font-size:18px;}
+.cc-body{padding:0 18px; max-height:0; overflow:hidden; transition:max-height .4s ease, padding .3s;}
+.cc-body.open{max-height:1200px; padding:14px 18px 18px;}
+.cc-section{margin-bottom:14px;}
+.cc-section:last-child{margin-bottom:0;}
+.cc-label{font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; margin-bottom:6px; opacity:.7;}
+.cc-def{font-size:14px; line-height:1.6; color:var(--text-dim);}
+.cc-def strong{color:var(--text); font-weight:600;}
+.cc-examples{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+.ex-tag{padding:3px 10px; border-radius:99px; font-size:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08);}
+.cc-exam-box{background:rgba(0,0,0,.25); border-radius:var(--radius-sm); padding:12px 14px; border-left:3px solid;}
+.cc-q{font-size:13px; font-style:italic; color:var(--text-dim); margin-bottom:8px;}
+.cc-a{font-size:13px; line-height:1.6;}
+.cc-tip{background:rgba(201,169,110,.08); border:1px solid rgba(201,169,110,.2); border-radius:var(--radius-sm); padding:10px 12px; font-size:13px; color:var(--gold-bright); line-height:1.5;}
+.cc-tip::before{content:'💡 '; }
+.cc-warning{background:rgba(224,104,104,.08); border:1px solid rgba(224,104,104,.25); border-radius:var(--radius-sm); padding:10px 12px; font-size:13px; color:#ff9090; line-height:1.5;}
+.cc-warning::before{content:'⚠️ '; }
+.formula-box{background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:12px 16px; text-align:center; font-size:15px; letter-spacing:.03em; color:var(--gold-bright); font-style:italic; margin:8px 0;}
+.mini-table{width:100%; border-collapse:collapse; font-size:12px; margin:8px 0;}
+.mini-table th{padding:6px 10px; text-align:left; background:rgba(255,255,255,.04); font-weight:600; font-size:11px; letter-spacing:.05em;}
+.mini-table td{padding:6px 10px; border-top:1px solid rgba(255,255,255,.06);}
+.mini-table tr:hover td{background:rgba(255,255,255,.03);}
+
+/* FLASHCARD VIEW */
+.fc-controls{display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap;}
+.fc-controls button{padding:8px 18px; border-radius:var(--radius-sm); border:1.5px solid rgba(201,169,110,.3); background:none; color:var(--text-dim); cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; transition:all .2s;}
+.fc-controls button:hover{background:rgba(201,169,110,.12); color:var(--gold); border-color:var(--gold);}
+.fc-controls button.active{background:rgba(201,169,110,.2); color:var(--gold-bright); border-color:var(--gold);}
+.fc-count{color:var(--text-muted); font-size:13px;}
+.fc-arena{display:flex; flex-direction:column; align-items:center;}
+.fc-card-wrap{perspective:1000px; width:100%; max-width:640px; height:300px; cursor:pointer; margin-bottom:20px;}
+.fc-card{width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,0,.2,1);}
+.fc-card.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute; inset:0; border-radius:var(--radius); backface-visibility:hidden; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:28px 32px; text-align:center;}
+.fc-front{background:var(--bg2); border:1px solid rgba(255,255,255,.08);}
+.fc-back{background:var(--bg3); transform:rotateY(180deg);}
+.fc-q-label{font-size:10px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:14px; opacity:.5;}
+.fc-q-text{font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; line-height:1.4; max-width:500px;}
+.fc-a-text{font-size:14px; line-height:1.7; max-width:520px;}
+.fc-hint{font-size:11px; color:var(--text-muted); margin-top:12px;}
+.fc-nav{display:flex; align-items:center; gap:16px; margin-top:8px;}
+.fc-btn{width:44px; height:44px; border-radius:50%; border:1.5px solid rgba(201,169,110,.3); background:none; color:var(--text-dim); cursor:pointer; font-size:20px; transition:all .2s;}
+.fc-btn:hover{background:rgba(201,169,110,.15); color:var(--gold); border-color:var(--gold);}
+.fc-progress-dots{display:flex; gap:6px; flex-wrap:wrap; max-width:400px; justify-content:center;}
+.fc-dot{width:8px; height:8px; border-radius:50%; background:var(--bg4); cursor:pointer; transition:all .2s; border:1px solid rgba(255,255,255,.05);}
+.fc-dot.current{background:var(--gold);}
+.fc-dot.seen{background:rgba(201,169,110,.3);}
+
+/* VISUAL REFERENCES */
+.vr-section{margin-bottom:44px;}
+.vr-title{font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:10px;}
+.vr-title::after{content:''; flex:1; height:1px; background:linear-gradient(90deg,rgba(201,169,110,.3),transparent);}
+.table-wrap{overflow-x:auto; border-radius:var(--radius); border:1px solid rgba(255,255,255,.07); margin-bottom:16px;}
+.data-table{width:100%; border-collapse:collapse; font-size:13px;}
+.data-table th{padding:11px 16px; text-align:left; background:rgba(201,169,110,.08); font-weight:600; font-size:12px; letter-spacing:.04em; color:var(--gold); white-space:nowrap;}
+.data-table td{padding:11px 16px; border-top:1px solid rgba(255,255,255,.05); vertical-align:top; line-height:1.5;}
+.data-table tr:hover td{background:rgba(255,255,255,.02);}
+.data-table td code{background:rgba(255,255,255,.07); border-radius:4px; padding:1px 6px; font-family:monospace; font-size:12px; color:var(--gold-bright);}
+.badge{display:inline-block; padding:2px 8px; border-radius:99px; font-size:11px; font-weight:600; margin:2px;}
+
+/* MCQ */
+.mcq-grid{display:grid; gap:20px;}
+.mcq-card{background:var(--bg2); border-radius:var(--radius); border:1px solid rgba(255,255,255,.07); padding:20px 22px; transition:box-shadow .2s;}
+.mcq-card:hover{box-shadow:0 4px 24px rgba(0,0,0,.3);}
+.mcq-num{font-size:11px; letter-spacing:.08em; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase;}
+.mcq-q{font-size:15px; font-weight:500; line-height:1.5; margin-bottom:14px;}
+.mcq-options{display:flex; flex-direction:column; gap:8px;}
+.mcq-opt{padding:10px 14px; border-radius:var(--radius-sm); border:1.5px solid rgba(255,255,255,.08); font-size:13px; cursor:pointer; transition:all .2s; background:none; color:var(--text); text-align:left; font-family:'DM Sans',sans-serif; line-height:1.4;}
+.mcq-opt:hover{border-color:var(--gold-dim); background:rgba(201,169,110,.06);}
+.mcq-opt.correct{border-color:#5cb85c; background:rgba(92,184,92,.12); color:#8de08d;}
+.mcq-opt.correct::before{content:'✓  '; font-weight:700;}
+.mcq-opt.wrong{border-color:#e06868; background:rgba(224,104,104,.1); color:#ff9090;}
+.mcq-opt.wrong::before{content:'✗  ';}
+.mcq-feedback{margin-top:10px; font-size:13px; padding:10px 14px; border-radius:var(--radius-sm); line-height:1.5; display:none;}
+.mcq-feedback.show{display:block;}
+.mcq-feedback.correct{background:rgba(92,184,92,.1); border:1px solid rgba(92,184,92,.2); color:#8de08d;}
+.mcq-feedback.wrong{background:rgba(224,104,104,.1); border:1px solid rgba(224,104,104,.2); color:#ff9090;}
+.mcq-score-banner{background:linear-gradient(135deg,var(--bg3),var(--bg2)); border:1px solid var(--gold-dim); border-radius:var(--radius); padding:16px 22px; display:flex; align-items:center; gap:16px; margin-bottom:24px;}
+.mcq-score-num{font-family:'Cormorant Garamond',serif; font-size:38px; font-weight:700; color:var(--gold);}
+.mcq-score-label{font-size:13px; color:var(--text-dim);}
+
+/* MINDMAP */
+#mindmap-svg{width:100%; height:100%;}
+.mm-node{cursor:pointer;}
+.mm-node circle{transition:r .2s, filter .2s;}
+.mm-node:hover circle{filter:brightness(1.3);}
+.mm-node text{pointer-events:none; user-select:none;}
+.mm-link{fill:none; stroke-width:1.5; opacity:.4;}
+
+/* DIAGRAM BOXES */
+.diagram-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;}
+.diag-box{background:var(--bg3); border-radius:var(--radius); padding:16px 18px; flex:1; min-width:180px; border:1px solid rgba(255,255,255,.07);}
+.diag-box h4{font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; margin-bottom:8px;}
+.diag-box ul{padding-left:16px; font-size:13px; color:var(--text-dim); line-height:1.6;}
+.diag-box ul li{margin-bottom:4px;}
+.arrow-chain{display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--bg3); border-radius:var(--radius); padding:14px 18px; border:1px solid rgba(255,255,255,.07); margin-bottom:12px;}
+.chain-node{padding:6px 14px; border-radius:6px; font-size:13px; font-weight:500; text-align:center;}
+.chain-arrow{color:var(--text-muted); font-size:18px;}
+
+/* SKEWNESS VISUAL */
+.skew-wrap{display:flex; gap:16px; flex-wrap:wrap;}
+.skew-box{flex:1; min-width:160px; background:var(--bg3); border-radius:var(--radius); padding:14px 16px; text-align:center; border:1px solid rgba(255,255,255,.07);}
+.skew-box svg{width:100%; height:70px;}
+.skew-label{font-size:12px; font-weight:600; margin-top:6px;}
+.skew-detail{font-size:11px; color:var(--text-muted); line-height:1.5; margin-top:4px;}
+
+/* EMPIRICAL RULE VISUAL */
+.empirical-wrap{background:var(--bg3); border-radius:var(--radius); padding:20px; margin-bottom:16px; border:1px solid rgba(255,255,255,.07);}
+.empirical-wrap svg{width:100%; height:180px; display:block;}
+
+/* RELIABILITY/VALIDITY GRIDS */
+.rv-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;}
+.rv-card{background:var(--bg3); border-radius:var(--radius); padding:16px 18px; border:1px solid rgba(255,255,255,.07);}
+.rv-card h4{font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; margin-bottom:8px;}
+.rv-card p{font-size:13px; color:var(--text-dim); line-height:1.6;}
+
+/* SOCS BOX */
+.socs-wrap{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px;}
+.socs-item{background:var(--bg3); border-radius:var(--radius); padding:14px; text-align:center; border:1px solid rgba(255,255,255,.07);}
+.socs-letter{font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:700; line-height:1;}
+.socs-word{font-size:13px; font-weight:600; margin-top:4px;}
+.socs-desc{font-size:11px; color:var(--text-dim); margin-top:4px; line-height:1.4;}
+
+/* UTILITY */
+.tag{display:inline-block; padding:2px 9px; border-radius:99px; font-size:11px; font-weight:600; margin:2px; border:1px solid;}
+.sep{height:1px; background:rgba(255,255,255,.06); margin:20px 0;}
+.highlight{background:rgba(201,169,110,.15); border-radius:4px; padding:1px 5px; color:var(--gold-bright);}
+.green-hl{background:rgba(92,184,92,.12); border-radius:4px; padding:1px 5px; color:#8de08d;}
+.red-hl{background:rgba(224,104,104,.1); border-radius:4px; padding:1px 5px; color:#ff9090;}
+.col-row{display:flex; gap:12px; flex-wrap:wrap; margin:8px 0;}
+.col-half{flex:1; min-width:200px;}
+ul.bullet{padding-left:18px; font-size:13px; color:var(--text-dim); line-height:1.7;}
+ul.bullet li{margin-bottom:3px;}
+ul.bullet li strong{color:var(--text);}
+.italic{font-style:italic; color:var(--text-dim);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px; height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(201,169,110,.25); border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(201,169,110,.4);}
+
+@media(max-width:700px){
+  .sidebar{width:56px; min-width:56px;}
+  .sidebar .logo-text, .sidebar .nav-item span, .sidebar .nav-label, .sidebar .progress-text{display:none;}
+  .sidebar .nav-item{justify-content:center;}
+  .cards-grid{grid-template-columns:1fr;}
+  .socs-wrap{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-mark">σ</div>
+    <div class="logo-text"><strong>Theme 2</strong><span>Statistics · EUR Psych</span></div>
+  </div>
+  <div style="overflow-y:auto; flex:1;">
+    <div class="nav-section">
+      <div class="nav-label">Views</div>
+      <button class="nav-item active" onclick="switchView('mindmap',this)"><span class="ni">🧠</span><span>Mind Map</span></button>
+      <button class="nav-item" onclick="switchView('cards',this)"><span class="ni">📋</span><span>Concept Cards</span></button>
+      <button class="nav-item" onclick="switchView('flashcards',this)"><span class="ni">🃏</span><span>Flashcard Quiz</span></button>
+      <button class="nav-item" onclick="switchView('visual',this)"><span class="ni">📊</span><span>Visual References</span></button>
+      <button class="nav-item" onclick="switchView('mcq',this)"><span class="ni">✏️</span><span>MCQ Exam</span></button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Topics</div>
+      <button class="nav-item" onclick="filterTopic('t1',this)" style="color:var(--t1)"><span class="ni">📊</span><span>Data Fundamentals</span></button>
+      <button class="nav-item" onclick="filterTopic('t2',this)" style="color:var(--t2)"><span class="ni">🔢</span><span>Variable Types</span></button>
+      <button class="nav-item" onclick="filterTopic('t3',this)" style="color:var(--t3)"><span class="ni">🔬</span><span>Research Variables</span></button>
+      <button class="nav-item" onclick="filterTopic('t4',this)" style="color:var(--t4)"><span class="ni">📏</span><span>Measurement</span></button>
+      <button class="nav-item" onclick="filterTopic('t5',this)" style="color:var(--t5)"><span class="ni">🎯</span><span>ARV Triangle</span></button>
+      <button class="nav-item" onclick="filterTopic('t6',this)" style="color:var(--t6)"><span class="ni">📈</span><span>Graphical Displays</span></button>
+      <button class="nav-item" onclick="filterTopic('t7',this)" style="color:var(--t7)"><span class="ni">📐</span><span>Center & Spread</span></button>
+      <button class="nav-item" onclick="filterTopic('t8',this)" style="color:var(--t8)"><span class="ni">⚡</span><span>Linear Transform.</span></button>
+      <button class="nav-item" onclick="filterTopic('t9',this)" style="color:var(--t9)"><span class="ni">🔔</span><span>Normal Dist.</span></button>
+      <button class="nav-item" onclick="filterTopic('t10',this)" style="color:var(--t10)"><span class="ni">📉</span><span>Z-Scores</span></button>
+      <button class="nav-item" onclick="filterTopic('t11',this)" style="color:var(--t11)"><span class="ni">📋</span><span>QQ Plot & Freq.</span></button>
+    </div>
+  </div>
+  <div class="progress-section">
+    <div class="progress-text">Study Progress</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-stat" id="progress-stat">0 / 41 cards seen</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <button class="toggle-btn" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">☰</button>
+    <span class="topbar-title">Statistics — Theme 2</span>
+    <span class="topbar-sub">Sezen Saracoglu · EUR International Psychology</span>
+  </div>
+
+  <div class="view-area">
+
+    <!-- VIEW 0: MINDMAP -->
+    <div class="view active" id="view-mindmap" style="padding:0; overflow:hidden; height:100%;">
+      <svg id="mindmap-svg" viewBox="0 0 1100 700" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <radialGradient id="cgrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c9a96e" stop-opacity="0.9"/><stop offset="100%" stop-color="#a07a44" stop-opacity="0.7"/></radialGradient>
+        </defs>
+        <!-- CENTER -->
+        <circle cx="550" cy="350" r="58" fill="url(#cgrad)" filter="url(#glow)" opacity=".95"/>
+        <text x="550" y="345" text-anchor="middle" fill="#0f0e0c" font-family="Cormorant Garamond,serif" font-size="14" font-weight="700">STATISTICS</text>
+        <text x="550" y="362" text-anchor="middle" fill="#0f0e0c" font-family="DM Sans,sans-serif" font-size="11">Theme 2</text>
+
+        <!-- BRANCH 1: Data Fundamentals – top-left -->
+        <line x1="550" y1="292" x2="270" y2="140" stroke="#8b7fd4" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t1',null)">
+          <circle cx="250" cy="125" r="44" fill="#8b7fd4" opacity=".85" filter="url(#glow)"/>
+          <text x="250" y="120" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="12" font-weight="700">Data</text>
+          <text x="250" y="135" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">Fundamentals</text>
+        </g>
+        <text x="310" y="95" fill="#8b7fd4" font-size="10" opacity=".7">Case · Variable · EDA</text>
+
+        <!-- BRANCH 2: Variable Types – top -->
+        <line x1="550" y1="292" x2="550" y2="120" stroke="#5a9fd4" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t2',null)">
+          <circle cx="550" cy="100" r="44" fill="#5a9fd4" opacity=".85" filter="url(#glow)"/>
+          <text x="550" y="95" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="12" font-weight="700">Variable</text>
+          <text x="550" y="110" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">Types</text>
+        </g>
+        <text x="620" y="70" fill="#5a9fd4" font-size="10" opacity=".7">Nominal·Ordinal·Interval·Ratio</text>
+
+        <!-- BRANCH 3: Research Variables – top-right -->
+        <line x1="550" y1="292" x2="820" y2="140" stroke="#6dbe6d" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t3',null)">
+          <circle cx="840" cy="125" r="44" fill="#6dbe6d" opacity=".85" filter="url(#glow)"/>
+          <text x="840" y="120" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="12" font-weight="700">Research</text>
+          <text x="840" y="135" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">Variables</text>
+        </g>
+        <text x="740" y="95" fill="#6dbe6d" font-size="10" opacity=".7" text-anchor="end">IV·DV·Mediator·Moderator</text>
+
+        <!-- BRANCH 4: Measurement – right -->
+        <line x1="608" y1="350" x2="880" y2="280" stroke="#c9a96e" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t4',null)">
+          <circle cx="920" cy="265" r="42" fill="#c9a96e" opacity=".85" filter="url(#glow)"/>
+          <text x="920" y="260" text-anchor="middle" fill="#0f0e0c" font-family="Cormorant Garamond,serif" font-size="13" font-weight="700">Measure-</text>
+          <text x="920" y="275" text-anchor="middle" fill="#0f0e0c" font-family="DM Sans,sans-serif" font-size="10">ment</text>
+        </g>
+        <text x="870" y="240" fill="#c9a96e" font-size="10" opacity=".7">Conceptual·Operational</text>
+
+        <!-- BRANCH 5: ARV – right-lower -->
+        <line x1="608" y1="380" x2="880" y2="450" stroke="#e06868" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t5',null)">
+          <circle cx="920" cy="460" r="42" fill="#e06868" opacity=".85" filter="url(#glow)"/>
+          <text x="920" y="453" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="11" font-weight="700">Accuracy</text>
+          <text x="920" y="468" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="9.5">Reliability·Validity</text>
+        </g>
+        <text x="860" y="490" fill="#e06868" font-size="10" opacity=".7" text-anchor="middle">Face·Content·Criterion·Construct</text>
+
+        <!-- BRANCH 6: Graphs – bottom-right -->
+        <line x1="580" y1="400" x2="780" y2="580" stroke="#f09050" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t6',null)">
+          <circle cx="800" cy="600" r="42" fill="#f09050" opacity=".85" filter="url(#glow)"/>
+          <text x="800" y="595" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="12" font-weight="700">Graphical</text>
+          <text x="800" y="610" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">Displays</text>
+        </g>
+        <text x="730" y="645" fill="#f09050" font-size="10" opacity=".7">Hist·Box·Scatter·Pie·SOCS</text>
+
+        <!-- BRANCH 7: Center & Spread – bottom -->
+        <line x1="550" y1="408" x2="550" y2="565" stroke="#45c5c5" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t7',null)">
+          <circle cx="550" cy="600" r="42" fill="#45c5c5" opacity=".85" filter="url(#glow)"/>
+          <text x="550" y="593" text-anchor="middle" fill="#0f0e0c" font-family="Cormorant Garamond,serif" font-size="12" font-weight="700">Center &amp;</text>
+          <text x="550" y="609" text-anchor="middle" fill="#0f0e0c" font-family="DM Sans,sans-serif" font-size="10">Spread</text>
+        </g>
+        <text x="620" y="650" fill="#45c5c5" font-size="10" opacity=".7">Mean·Median·Mode·SD·IQR</text>
+
+        <!-- BRANCH 8: Linear Transformation – bottom-left -->
+        <line x1="520" y1="400" x2="300" y2="570" stroke="#d4b020" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t8',null)">
+          <circle cx="280" cy="595" r="42" fill="#d4b020" opacity=".85" filter="url(#glow)"/>
+          <text x="280" y="590" text-anchor="middle" fill="#0f0e0c" font-family="Cormorant Garamond,serif" font-size="11" font-weight="700">Linear</text>
+          <text x="280" y="606" text-anchor="middle" fill="#0f0e0c" font-family="DM Sans,sans-serif" font-size="10">Transform.</text>
+        </g>
+        <text x="200" y="645" fill="#d4b020" font-size="10" opacity=".7">x_new = a + bx</text>
+
+        <!-- BRANCH 9: Normal Distribution – left-lower -->
+        <line x1="492" y1="390" x2="220" y2="480" stroke="#d480b8" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t9',null)">
+          <circle cx="185" cy="490" r="42" fill="#d480b8" opacity=".85" filter="url(#glow)"/>
+          <text x="185" y="485" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="12" font-weight="700">Normal</text>
+          <text x="185" y="500" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">Distribution</text>
+        </g>
+        <text x="130" y="540" fill="#d480b8" font-size="10" opacity=".7">68-95-99.7 Rule</text>
+
+        <!-- BRANCH 10: Z-Scores – left -->
+        <line x1="492" y1="350" x2="220" y2="300" stroke="#70aed4" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t10',null)">
+          <circle cx="185" cy="285" r="42" fill="#70aed4" opacity=".85" filter="url(#glow)"/>
+          <text x="185" y="280" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="13" font-weight="700">Z-Scores</text>
+          <text x="185" y="296" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">N(0,1)</text>
+        </g>
+        <text x="125" y="255" fill="#70aed4" font-size="10" opacity=".7">z=(x-μ)/σ</text>
+
+        <!-- BRANCH 11: QQ Plot – left-upper -->
+        <line x1="508" y1="310" x2="290" y2="195" stroke="#a882d4" stroke-width="2" opacity=".5"/>
+        <g class="mm-node" onclick="switchView('cards',null);filterTopic('t11',null)">
+          <circle cx="265" cy="175" r="40" fill="#a882d4" opacity=".85" filter="url(#glow)"/>
+          <text x="265" y="170" text-anchor="middle" fill="#fff" font-family="Cormorant Garamond,serif" font-size="11" font-weight="700">Q-Q Plot &amp;</text>
+          <text x="265" y="186" text-anchor="middle" fill="#fff" font-family="DM Sans,sans-serif" font-size="10">Frequencies</text>
+        </g>
+        <text x="195" y="155" fill="#a882d4" font-size="10" opacity=".7" text-anchor="end">Normality check</text>
+
+        <!-- Legend -->
+        <text x="30" y="690" fill="#6a6050" font-size="11" font-family="DM Sans,sans-serif">Click any topic node to jump to its concept cards</text>
+      </svg>
+    </div>
+
+    <!-- VIEW 1: CONCEPT CARDS -->
+    <div class="view" id="view-cards">
+      <div class="section-head">Concept Cards</div>
+      <div class="section-sub">Click any card to expand · Full definitions, examples &amp; exam questions inside</div>
+      <div class="filter-bar" id="card-filter-bar">
+        <button class="filter-chip filter-all active" onclick="filterCards('all',this)">All Topics</button>
+        <button class="filter-chip" style="border-color:var(--t1);color:var(--t1)" onclick="filterCards('t1',this)">📊 Data</button>
+        <button class="filter-chip" style="border-color:var(--t2);color:var(--t2)" onclick="filterCards('t2',this)">🔢 Variable Types</button>
+        <button class="filter-chip" style="border-color:var(--t3);color:var(--t3)" onclick="filterCards('t3',this)">🔬 Research Vars</button>
+        <button class="filter-chip" style="border-color:var(--t4);color:var(--t4)" onclick="filterCards('t4',this)">📏 Measurement</button>
+        <button class="filter-chip" style="border-color:var(--t5);color:var(--t5)" onclick="filterCards('t5',this)">🎯 ARV</button>
+        <button class="filter-chip" style="border-color:var(--t6);color:var(--t6)" onclick="filterCards('t6',this)">📈 Graphs</button>
+        <button class="filter-chip" style="border-color:var(--t7);color:var(--t7)" onclick="filterCards('t7',this)">📐 Center &amp; Spread</button>
+        <button class="filter-chip" style="border-color:var(--t8);color:var(--t8)" onclick="filterCards('t8',this)">⚡ Linear</button>
+        <button class="filter-chip" style="border-color:var(--t9);color:var(--t9)" onclick="filterCards('t9',this)">🔔 Normal</button>
+        <button class="filter-chip" style="border-color:var(--t10);color:var(--t10)" onclick="filterCards('t10',this)">📉 Z-Scores</button>
+        <button class="filter-chip" style="border-color:var(--t11);color:var(--t11)" onclick="filterCards('t11',this)">📋 QQ &amp; Freq</button>
+      </div>
+      <div class="cards-grid" id="cards-grid"></div>
+    </div>
+
+    <!-- VIEW 2: FLASHCARDS -->
+    <div class="view" id="view-flashcards">
+      <div class="section-head">Flashcard Quiz</div>
+      <div class="section-sub">Click card to flip · Use arrows to navigate · Track your progress</div>
+      <div class="fc-controls">
+        <button id="btn-shuffle" onclick="shuffleFC()">🔀 Shuffle</button>
+        <button id="btn-showall" onclick="toggleShowAll()">👁 Show Answers</button>
+        <button onclick="resetFCProgress()">↺ Reset</button>
+        <span class="fc-count" id="fc-count-display">Card 1 of 41</span>
+        <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap;">
+          <button onclick="filterFC('all')">All</button>
+          <button onclick="filterFC('t1')" style="border-color:var(--t1);color:var(--t1)">Data</button>
+          <button onclick="filterFC('t2')" style="border-color:var(--t2);color:var(--t2)">Variables</button>
+          <button onclick="filterFC('t3')" style="border-color:var(--t3);color:var(--t3)">Research</button>
+          <button onclick="filterFC('t4')" style="border-color:var(--t4);color:var(--t4)">Measure</button>
+          <button onclick="filterFC('t5')" style="border-color:var(--t5);color:var(--t5)">ARV</button>
+          <button onclick="filterFC('t6')" style="border-color:var(--t6);color:var(--t6)">Graphs</button>
+          <button onclick="filterFC('t7')" style="border-color:var(--t7);color:var(--t7)">Stats</button>
+          <button onclick="filterFC('t8')" style="border-color:var(--t8);color:var(--t8)">Linear</button>
+          <button onclick="filterFC('t9')" style="border-color:var(--t9);color:var(--t9)">Normal</button>
+          <button onclick="filterFC('t10')" style="border-color:var(--t10);color:var(--t10)">Z-Score</button>
+          <button onclick="filterFC('t11')" style="border-color:var(--t11);color:var(--t11)">QQ</button>
+        </div>
+      </div>
+      <div class="fc-arena">
+        <div class="fc-card-wrap" id="fc-card-wrap" onclick="flipFC()">
+          <div class="fc-card" id="fc-card">
+            <div class="fc-face fc-front" id="fc-front">
+              <div class="fc-q-label">Question</div>
+              <div class="fc-q-text" id="fc-q-text">Loading...</div>
+              <div class="fc-hint">Tap to reveal answer</div>
+            </div>
+            <div class="fc-face fc-back" id="fc-back">
+              <div class="fc-q-label">Answer</div>
+              <div class="fc-a-text" id="fc-a-text">Loading...</div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-nav">
+          <button class="fc-btn" onclick="moveFC(-1)">‹</button>
+          <div class="fc-progress-dots" id="fc-dots"></div>
+          <button class="fc-btn" onclick="moveFC(1)">›</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 3: VISUAL REFERENCES -->
+    <div class="view" id="view-visual">
+      <div class="section-head">Visual References</div>
+      <div class="section-sub">All tables, diagrams, formulas &amp; stage models from your document</div>
+
+      <!-- Variable Types Hierarchy -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t2)">🔢 Variable Types — Complete Hierarchy</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Family</th><th>Type</th><th>Description</th><th>Memory Trick</th><th>Examples</th><th>Can Average?</th></tr></thead>
+            <tbody>
+              <tr><td rowspan="2"><span class="badge" style="background:rgba(139,127,212,.2);border:1px solid var(--t1);color:var(--t1)">Categorical</span></td><td><strong>Nominal</strong></td><td>Categories with <em>no</em> intrinsic order</td><td>"You <strong>count</strong>, not calculate"</td><td>Gender, Nationality, Blood type (A,B,AB,O), Diagnosis, Eye color</td><td><span class="red-hl">✗ No</span></td></tr>
+              <tr><td><strong>Ordinal</strong></td><td>Categories with meaningful order/rank; difference between levels ≠ equal units</td><td>"Order matters, BUT you cannot say 'the difference between moderate and severe pain = 2 units'"</td><td>Satisfaction (Very Satisfied → Dissatisfied), Education level, Pain level, Socioeconomic status, Customer satisfaction</td><td><span class="red-hl">✗ No</span></td></tr>
+              <tr><td rowspan="4"><span class="badge" style="background:rgba(90,159,212,.2);border:1px solid var(--t2);color:var(--t2)">Numerical (Quantitative)</span></td><td><strong>Discrete</strong></td><td>Counting numbers; whole numbers; no decimals</td><td>"You cannot have 2.5 children"</td><td>Number of children → 0,1,2,3; Goals in a match → 1,2,3; Students in class → 25,26,27</td><td><span class="green-hl">✓ Yes</span></td></tr>
+              <tr><td><strong>Continuous — Interval</strong></td><td>Difference between values is meaningful; ZERO is arbitrary (does not mean 'none')</td><td>"0°C does NOT mean 'no temperature'; 20°C is NOT twice as hot as 10°C ✗"</td><td>Temperature (°C/°F), IQ scores, Calendar years (0 AD arbitrary), 2000→2025</td><td><span class="green-hl">✓ Yes</span></td></tr>
+              <tr><td><strong>Continuous — Ratio</strong></td><td>Difference meaningful AND zero means 'none of the quantity'</td><td>"If I can say 'on average', it is numerical"</td><td>Height (0 cm = no height), Weight (0 kg = no weight), Reaction time, Age, Income (0 = no income)</td><td><span class="green-hl">✓ Yes</span></td></tr>
+              <tr><td><strong>Label Variable</strong></td><td>Identification only — NOT analysis. NOT independent or dependent variable</td><td>Labels are <em>never</em> analyzed statistically</td><td>ID number, Student number, Participant code</td><td><span class="red-hl">✗ Never</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Research Variables Diagram -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t3)">🔬 Research Variable Relationships</div>
+        <div class="arrow-chain">
+          <div class="chain-node" style="background:rgba(109,190,109,.15);border:1.5px solid var(--t3);color:var(--t3)">Independent Variable (X)<br><small style="color:var(--text-dim)">Explanatory · Cause<br>"What we manipulate"</small></div>
+          <div class="chain-arrow">→</div>
+          <div class="chain-node" style="background:rgba(201,169,110,.12);border:1.5px dashed var(--t4);color:var(--t4)">Mediator (M)<br><small style="color:var(--text-dim)">WHY does X affect Y?<br>Sits in the middle</small></div>
+          <div class="chain-arrow">→</div>
+          <div class="chain-node" style="background:rgba(224,104,104,.12);border:1.5px solid var(--t5);color:var(--t5)">Dependent Variable (Y)<br><small style="color:var(--text-dim)">Response · Outcome<br>"What we measure"</small></div>
+        </div>
+        <div class="arrow-chain">
+          <div class="chain-node" style="background:rgba(109,190,109,.15);border:1.5px solid var(--t3);color:var(--t3)">Independent (X)</div>
+          <div class="chain-arrow">→</div>
+          <div class="chain-node" style="background:rgba(224,104,104,.12);border:1.5px solid var(--t5);color:var(--t5)">Dependent (Y)</div>
+          <div class="chain-arrow" style="color:var(--t8)">⬆ strength/direction modified by</div>
+          <div class="chain-node" style="background:rgba(212,176,32,.12);border:1.5px solid var(--t8);color:var(--t8)">Moderator (W)<br><small style="color:var(--text-dim)">WHEN / FOR WHOM?<br>Changes strength</small></div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Variable Type</th><th>Ask Yourself</th><th>Key Property</th><th>Exam Language</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td><strong style="color:var(--t3)">Independent (IV)</strong></td><td>What do we think causes change? Plotted on X-axis</td><td>Explains or predicts; manipulated in experiments</td><td>"Hours studied," "Teaching method"</td><td>Study time predicts exam score</td></tr>
+              <tr><td><strong style="color:var(--t5)">Dependent (DV)</strong></td><td>What changes as a result? Plotted on Y-axis</td><td>Measured as outcome; responds to IV</td><td>"Exam score," "Heart rate," "Sales volume"</td><td>"Exam score is the DV because it responds to changes in hours studied"</td></tr>
+              <tr><td><strong style="color:var(--t2)">Situational</strong></td><td>What situation was the subject placed in?</td><td>Environment/context; often manipulated; not controlled; common in experiments</td><td>"Type of classroom," "Noise level"</td><td>Online vs in-person; quiet vs noisy room</td></tr>
+              <tr><td><strong style="color:var(--t4)">Subject</strong></td><td>Who the person already is?</td><td>Pre-existing characteristic; cannot be assigned; measured not controlled</td><td>"Age," "Gender," "Personality trait"</td><td>Age, Gender, Education level, Nationality</td></tr>
+              <tr><td><strong style="color:var(--t4)">Mediator (M)</strong></td><td>WHY does X affect Y?</td><td>Sits in middle of causal chain; explains HOW X leads to Y; accounts for direct effect of X on Y</td><td>"because," "through," "by increasing," "explains how"</td><td>Study time → Understanding → Exam score; "Understanding mediates the relationship between study time and exam score"</td></tr>
+              <tr><td><strong style="color:var(--t8)">Moderator (W)</strong></td><td>WHEN / FOR WHOM does X affect Y?</td><td>Changes STRENGTH or DIRECTION of X→Y; creates an interaction; does NOT sit in the middle</td><td>"depends on," "stronger for," "weaker when," "interaction"</td><td>Motivation moderates study time → exam score: highly motivated students benefit more from study time</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Measurement Levels -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t4)">📏 Levels of Measurement — Full Comparison</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Level</th><th>Family</th><th>Order?</th><th>Equal intervals?</th><th>True zero?</th><th>Analyses</th><th>Examples</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Nominal</strong></td><td>Categorical</td><td>✗</td><td>✗</td><td>✗</td><td>Mode, frequencies, chi-square</td><td>Gender, nationality, blood type</td></tr>
+              <tr><td><strong>Ordinal</strong></td><td>Categorical</td><td>✓</td><td>✗</td><td>✗</td><td>Median, percentile rank, spearman r</td><td>Likert scale, education level, pain level</td></tr>
+              <tr><td><strong>Interval</strong></td><td>Numerical</td><td>✓</td><td>✓</td><td>✗ (arbitrary)</td><td>Mean, SD, t-test, ANOVA, Pearson r</td><td>Temperature °C, IQ, calendar years</td></tr>
+              <tr><td><strong>Ratio</strong></td><td>Numerical</td><td>✓</td><td>✓</td><td>✓ (real zero)</td><td>All stats + ratios + geometric mean</td><td>Height, weight, reaction time, income</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ARV Triangle -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t5)">🎯 Accuracy · Reliability · Validity — The Triangle</div>
+        <div class="rv-grid">
+          <div class="rv-card" style="border-color:rgba(224,104,104,.25)">
+            <h4 style="color:var(--t5)">Accuracy (Systematic Error / BIAS)</h4>
+            <p>Refers to how <strong>close</strong> a measurement is to the <strong>true value</strong>. Affected by systematic error (bias). Error is consistent and predictable.<br><br><em>Example:</em> A scale that always shows +2 kg too much. ✓ Accurate ≠ Reliable; ✓ You can be consistent but wrong.</p>
+          </div>
+          <div class="rv-card" style="border-color:rgba(69,197,197,.25)">
+            <h4 style="color:var(--t7)">Reliability (CONSISTENCY)</h4>
+            <p>Refers to the <strong>consistency or repeatability</strong> of a measurement. A measurement is reliable if it produces similar results under consistent conditions, indicating low random measurement error.<br><br>⚠️ Reliability concerns <em>consistency</em>, NOT accuracy or validity.</p>
+          </div>
+          <div class="rv-card" style="border-color:rgba(201,169,110,.25)">
+            <h4 style="color:var(--t4)">Validity (MEASURING WHAT YOU THINK)</h4>
+            <p>Whether the instrument actually measures the <strong>intended construct</strong>. Accuracy measures the construct it is intended to measure. Validity concerns the <em>meaning and interpretation</em> of test scores, not merely their consistency.<br><br>⚠️ A test can be reliable but not valid!</p>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:16px">
+          <table class="data-table">
+            <thead><tr><th>Reliability Type</th><th>What it measures</th><th>Method</th><th>Indicator</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Test–Retest</strong></td><td>Stability of measurement over time</td><td>Same instrument, same participants, different points in time</td><td>High correlation between two sets of scores</td></tr>
+              <tr><td><strong>Split-Half</strong></td><td>Internal consistency of a measurement</td><td>Divide test into two equivalent halves (odd vs even); examine correlation between scores on the two halves</td><td>High correlation between two halves reflects underlying construct consistently</td></tr>
+              <tr><td><strong>Interobserver</strong></td><td>Consistency between observers</td><td>Two+ independent observers assess same phenomenon; measure degree of agreement</td><td>Consistent judgments indicate reliability; not dependent on who performs the observation</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Validity Type</th><th>Key Question</th><th>Method / Notes</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Face Validity</strong></td><td>Does it <em>look like</em> it measures the construct? (Surface logic)</td><td>Intuitive / logical assessment; NOT statistically tested; concerns appearance on subjective judgment. ⚠️ Face validity does NOT guarantee actual validity but CAN affect acceptance.</td><td>A stress questionnaire that asks about stressful situations looks valid on the surface</td></tr>
+              <tr><td><strong>Content Validity</strong></td><td>Does it cover the <em>entire domain</em>?</td><td>Focuses on coverage; evaluates whether all relevant components of the construct's domain are included; commonly assessed by expert judgment. Especially important for educational &amp; achievement tests.</td><td>An exam that includes questions from ALL chapters of a course has higher content validity than one covering only a small portion</td></tr>
+              <tr><td><strong>Criterion — Predictive</strong></td><td>Does it accurately predict a <em>future</em> criterion?</td><td>The criterion is measured at a LATER point in time</td><td>High school grades predicting college academic performance</td></tr>
+              <tr><td><strong>Criterion — Concurrent</strong></td><td>Does it correlate with an <em>existing validated</em> measure at the SAME time?</td><td>Comparing a NEW intelligence test with an existing, validated intelligence test — measured simultaneously</td><td>New IQ test vs. established IQ test given simultaneously</td></tr>
+              <tr><td><strong>Construct — Convergent</strong></td><td>Does it have <em>high correlation</em> with similar measures?</td><td>Strong correlations with measures of same or closely related constructs SUPPORTS construct validity</td><td>A new anxiety scale should correlate highly with existing anxiety scales</td></tr>
+              <tr><td><strong>Construct — Discriminant</strong></td><td>Does it have <em>low correlation</em> with unrelated constructs?</td><td>Measurement should NOT correlate strongly with measures of theoretically unrelated constructs</td><td>Anxiety scale should NOT correlate with physical strength test</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Graphical Display Comparison -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t6)">📈 Graphical Displays — Histogram vs Bar Chart</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Feature</th><th>Histogram</th><th>Bar Chart</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Type of data</strong></td><td>Numerical (quantitative)</td><td>Categorical</td></tr>
+              <tr><td><strong>Bars touch?</strong></td><td><span class="green-hl">✓ Yes</span> — bars touch because data is continuous</td><td><span class="red-hl">✗ No</span> — bars are separate because categories are discrete</td></tr>
+              <tr><td><strong>What bars represent</strong></td><td>Number ranges (bins)</td><td>Groups / categories</td></tr>
+              <tr><td><strong>Order important?</strong></td><td><span class="green-hl">✓ Yes</span></td><td><span class="red-hl">✗ No</span></td></tr>
+              <tr><td><strong>Best for</strong></td><td>Large data sets; shows overall shape clearly</td><td>Comparing categorical groups</td></tr>
+              <tr><td><strong>Groups data?</strong></td><td>Into bins (ranges)</td><td>Into separate categories</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- SOCS Framework -->
+        <div style="margin-top:20px">
+          <div style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; margin-bottom:14px; color:var(--t6)">SOCS Framework — Examining Distributions (Core Exam)</div>
+          <div class="socs-wrap">
+            <div class="socs-item" style="border-color:rgba(240,144,80,.3)">
+              <div class="socs-letter" style="color:var(--t6)">S</div>
+              <div class="socs-word">Shape</div>
+              <div class="socs-desc">Symmetric, skewed, unimodal, bimodal?</div>
+            </div>
+            <div class="socs-item" style="border-color:rgba(224,104,104,.3)">
+              <div class="socs-letter" style="color:var(--t5)">O</div>
+              <div class="socs-word">Outliers</div>
+              <div class="socs-desc">Individual values that fall outside the general pattern</div>
+            </div>
+            <div class="socs-item" style="border-color:rgba(69,197,197,.3)">
+              <div class="socs-letter" style="color:var(--t7)">C</div>
+              <div class="socs-word">Center</div>
+              <div class="socs-desc">Mean, median, mode — where data are concentrated</div>
+            </div>
+            <div class="socs-item" style="border-color:rgba(139,127,212,.3)">
+              <div class="socs-letter" style="color:var(--t1)">S</div>
+              <div class="socs-word">Spread</div>
+              <div class="socs-desc">Range, IQR, SD — how spread out the data is</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skewness Visual -->
+        <div style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; margin:16px 0 12px; color:var(--t6)">Skewness — Distribution Shapes</div>
+        <div class="skew-wrap">
+          <div class="skew-box" style="border-color:rgba(224,104,104,.3)">
+            <svg viewBox="0 0 160 70"><path d="M15 60 Q30 60 50 20 Q65 5 80 15 Q95 25 100 35 Q120 50 145 60" fill="none" stroke="#e06868" stroke-width="2.5"/><line x1="15" y1="62" x2="148" y2="62" stroke="#6a6050" stroke-width="1"/></svg>
+            <div class="skew-label" style="color:var(--t5)">Left Skewed (Negative)</div>
+            <div class="skew-detail">Long tail to the LEFT<br>Mean &lt; Median &lt; Mode<br>"Skewed to the left = lower tail"<br>Mean follows the tail</div>
+          </div>
+          <div class="skew-box" style="border-color:rgba(69,197,197,.3)">
+            <svg viewBox="0 0 160 70"><path d="M15 60 Q40 50 60 15 Q80 0 100 15 Q120 30 145 60" fill="none" stroke="#45c5c5" stroke-width="2.5"/><line x1="15" y1="62" x2="148" y2="62" stroke="#6a6050" stroke-width="1"/></svg>
+            <div class="skew-label" style="color:var(--t7)">Symmetric (No Skew)</div>
+            <div class="skew-detail">Mean = Median = Mode<br>Bell-shaped, mirror images<br>Use mean to describe center</div>
+          </div>
+          <div class="skew-box" style="border-color:rgba(90,159,212,.3)">
+            <svg viewBox="0 0 160 70"><path d="M15 60 Q40 25 55 15 Q70 5 80 20 Q100 45 115 55 Q130 60 145 60" fill="none" stroke="#5a9fd4" stroke-width="2.5"/><line x1="15" y1="62" x2="148" y2="62" stroke="#6a6050" stroke-width="1"/></svg>
+            <div class="skew-label" style="color:var(--t2)">Right Skewed (Positive)</div>
+            <div class="skew-detail">Long tail to the RIGHT<br>Mode &lt; Median &lt; Mean<br>"Skewed to the right = higher tail"<br>Use median (resistant to outliers)</div>
+          </div>
+        </div>
+
+        <!-- Memory: mean follows the tail -->
+        <div class="cc-tip" style="margin-top:14px"><strong>Memory hook: "Mean follows the tail"</strong> — In a right-skewed distribution, the mean is pulled to the right (toward the long tail). In a left-skewed distribution, the mean is pulled to the left. The median "stays put" — resistant to extreme values.</div>
+      </div>
+
+      <!-- Five Number Summary & IQR -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t7)">📐 Five-Number Summary &amp; IQR — Step-by-Step</div>
+        <div class="diagram-row">
+          <div class="diag-box">
+            <h4 style="color:var(--t7)">Five Components</h4>
+            <ul>
+              <li><strong>1. Minimum</strong> — smallest value</li>
+              <li><strong>2. Q1</strong> — 25th percentile (First Quartile)</li>
+              <li><strong>3. Median (Q2)</strong> — 50th percentile</li>
+              <li><strong>4. Q3</strong> — 75th percentile (Third Quartile)</li>
+              <li><strong>5. Maximum</strong> — largest value</li>
+            </ul>
+          </div>
+          <div class="diag-box">
+            <h4 style="color:var(--t7)">Worked Example</h4>
+            <p style="font-size:12px; color:var(--text-dim);">Dataset: <strong>4, 7, 10, 12, 15, 18, 21, 25, 30</strong> (already sorted, n=9)</p>
+            <ul style="font-size:12px;">
+              <li>Step 1: Sort smallest→largest ✓</li>
+              <li>Step 2: Median (Q2) = middle value = <strong>15</strong></li>
+              <li>Step 3: Lower half = 4, 7, 10, 12 → Q1 = (7+10)/2 = <strong>8.5</strong></li>
+              <li>Step 4: Upper half = 18, 21, 25, 30 → Q3 = (21+25)/2 = <strong>23</strong></li>
+              <li>Step 5: Min = <strong>4</strong>, Max = <strong>30</strong></li>
+              <li>IQR = Q3 − Q1 = 23 − 8.5 = <strong>14.5</strong></li>
+            </ul>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Statistic</th><th>Value (Example)</th></tr></thead>
+            <tbody>
+              <tr><td>Minimum</td><td>4</td></tr>
+              <tr><td>Q1 (First Quartile)</td><td>8.5</td></tr>
+              <tr><td>Median (Q2)</td><td>15</td></tr>
+              <tr><td>Q3 (Third Quartile)</td><td>23</td></tr>
+              <tr><td>Maximum</td><td>30</td></tr>
+              <tr><td><strong>IQR = Q3 − Q1</strong></td><td><strong>14.5</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; margin:14px 0 8px; color:var(--t7)">Identifying Outliers — 1.5 × IQR Rule</div>
+        <div class="formula-box">Lower fence = Q1 − 1.5(IQR) &nbsp;&nbsp;|&nbsp;&nbsp; Upper fence = Q3 + 1.5(IQR)</div>
+        <div class="cc-tip" style="margin-top:8px">Example: Q1=8.5, Q3=23, IQR=14.5 → Lower fence = 8.5 − 1.5(14.5) = <strong>−13.25</strong>; Upper fence = 23 + 1.5(14.5) = <strong>44.75</strong>. All values between −13.25 and 44.75 → <strong>no outliers</strong>. Use phrase "suspected outliers" in exams.</div>
+      </div>
+
+      <!-- Variance & Standard Deviation -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t7)">📐 Variance &amp; Standard Deviation — Formulas &amp; Steps</div>
+        <div class="diagram-row">
+          <div class="diag-box" style="text-align:center;">
+            <h4 style="color:var(--t7)">Population Variance (σ²)</h4>
+            <div class="formula-box">σ² = Σ(x − μ)² / N</div>
+            <p style="font-size:12px; color:var(--text-dim)">Use when data include <em>entire</em> population</p>
+          </div>
+          <div class="diag-box" style="text-align:center;">
+            <h4 style="color:var(--t7)">Sample Variance (s²)</h4>
+            <div class="formula-box">s² = Σ(x − x̄)² / (n − 1)</div>
+            <p style="font-size:12px; color:var(--text-dim)">Use when data are a sample from a larger population (most exams). Divide by <strong>n−1</strong> (Bessel's Correction) to correct bias in estimating population variance.</p>
+          </div>
+          <div class="diag-box" style="text-align:center;">
+            <h4 style="color:var(--t7)">Standard Deviation</h4>
+            <div class="formula-box">σ = √σ² &nbsp;(population)</div>
+            <div class="formula-box">s = √s² &nbsp;(sample)</div>
+            <p style="font-size:12px; color:var(--text-dim)">SD = square root of variance. Returns to original units. "Typical distance from the mean."</p>
+          </div>
+        </div>
+        <div style="font-size:13px; color:var(--text-dim); margin-top:10px; background:var(--bg3); border-radius:8px; padding:14px;">
+          <strong style="color:var(--text)">Step-by-step (data: 2, 4, 6, 8, 10):</strong><br>
+          Step 1: x̄ = (2+4+6+8+10)/5 = <strong>6</strong><br>
+          Step 2: Deviations: −4, −2, 0, +2, +4<br>
+          Step 3: Square deviations: 16, 4, 0, 4, 16<br>
+          Step 4: Sum = 40<br>
+          Step 5: s² = 40/(5−1) = <strong>10</strong> (sample variance)<br>
+          Step 6: s = √10 ≈ <strong>3.16</strong> (sample standard deviation)
+        </div>
+        <div class="table-wrap" style="margin-top:14px">
+          <table class="data-table">
+            <thead><tr><th>Measure</th><th>What it measures</th><th>Uses squaring?</th><th>Units</th><th>Easy to interpret?</th><th>Used for calculations?</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Variance</strong></td><td>Spread</td><td>✓ Yes</td><td>Squared units</td><td>✗ No</td><td>✓ Yes</td></tr>
+              <tr><td><strong>Standard Deviation</strong></td><td>Spread</td><td>✗ No</td><td>Original units</td><td>✓ Yes</td><td>✓ Yes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Linear Transformation -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t8)">⚡ Linear Transformation — x_new = a + bx</div>
+        <div class="diagram-row">
+          <div class="diag-box">
+            <h4 style="color:var(--t8)">Part 1: a — shifting the zero point</h4>
+            <p style="font-size:13px; color:var(--text-dim)">The constant <strong>a</strong> SHIFTS the origin (where zero is). Changes where zero starts. Example: Celsius → Fahrenheit needs <em>a</em> because 0°C ≠ 0°F (0°F = −17.8°C). Without a, the conversion would be wrong.</p>
+          </div>
+          <div class="diag-box">
+            <h4 style="color:var(--t8)">Part 2: b — changing the unit size</h4>
+            <p style="font-size:13px; color:var(--text-dim)">The constant <strong>b</strong> rescales the variable (changes size of one unit). Zero speed is the same in both systems (m/s and km/h) → no shift needed (a = 0). But unit size changes: 1 m/s = 3.6 km/h, so <strong>b = 3.6</strong>.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Statistic</th><th>Effect of a (add constant)</th><th>Effect of b (multiply constant)</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Mean</strong></td><td>Changes (shifts by a)</td><td>Changes (scaled by b)</td></tr>
+              <tr><td><strong>Median</strong></td><td>Changes (shifts by a)</td><td>Changes (scaled by b)</td></tr>
+              <tr><td><strong>Standard Deviation</strong></td><td>✗ Does NOT change</td><td>Changes (scaled by b)</td></tr>
+              <tr><td><strong>Variance</strong></td><td>✗ Does NOT change</td><td>Changes (scaled by b²)</td></tr>
+              <tr><td><strong>Shape</strong></td><td>✗ Never changes</td><td>✗ Never changes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cc-warning" style="margin-top:10px">Shape NEVER changes under a linear transformation — symmetry stays symmetry, skewness stays skewness, modality stays modality. The formula x_new = a + bx applies to every observation.</div>
+      </div>
+
+      <!-- Normal Distribution & Empirical Rule -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t9)">🔔 Normal Distribution &amp; Empirical Rule (68–95–99.7)</div>
+        <div class="empirical-wrap">
+          <svg viewBox="0 0 700 180">
+            <!-- Bell curve -->
+            <path d="M50 170 Q100 170 150 150 Q200 130 250 90 Q300 40 350 15 Q400 40 450 90 Q500 130 550 150 Q600 170 650 170" fill="none" stroke="#d480b8" stroke-width="2.5"/>
+            <line x1="350" y1="10" x2="350" y2="175" stroke="#c9a96e" stroke-width="1" stroke-dasharray="4,3"/>
+            <!-- 68% region -->
+            <rect x="258" y="15" width="184" height="160" fill="rgba(212,128,184,.15)" rx="2"/>
+            <text x="350" y="120" text-anchor="middle" fill="#d480b8" font-size="11" font-weight="700">68%</text>
+            <!-- 95% region -->
+            <line x1="165" y1="150" x2="535" y2="150" stroke="#70aed4" stroke-width="1.5"/>
+            <text x="350" y="145" text-anchor="middle" fill="#70aed4" font-size="10">95%</text>
+            <!-- 99.7% -->
+            <line x1="70" y1="165" x2="630" y2="165" stroke="#6dbe6d" stroke-width="1.5"/>
+            <text x="350" y="160" text-anchor="middle" fill="#6dbe6d" font-size="10">99.7%</text>
+            <!-- Labels -->
+            <text x="350" y="175" text-anchor="middle" fill="#c9a96e" font-size="10">μ</text>
+            <text x="258" y="175" text-anchor="middle" fill="#d480b8" font-size="10">μ−1σ</text>
+            <text x="442" y="175" text-anchor="middle" fill="#d480b8" font-size="10">μ+1σ</text>
+            <text x="165" y="175" text-anchor="middle" fill="#70aed4" font-size="9">μ−2σ</text>
+            <text x="535" y="175" text-anchor="middle" fill="#70aed4" font-size="9">μ+2σ</text>
+            <text x="70" y="175" text-anchor="middle" fill="#6dbe6d" font-size="8">μ−3σ</text>
+            <text x="630" y="175" text-anchor="middle" fill="#6dbe6d" font-size="8">μ+3σ</text>
+            <!-- Percentages per band -->
+            <text x="307" y="75" text-anchor="middle" fill="#e8e0d0" font-size="9">34.1%</text>
+            <text x="393" y="75" text-anchor="middle" fill="#e8e0d0" font-size="9">34.1%</text>
+            <text x="213" y="135" text-anchor="middle" fill="#70aed4" font-size="9">13.6%</text>
+            <text x="487" y="135" text-anchor="middle" fill="#70aed4" font-size="9">13.6%</text>
+            <text x="115" y="155" text-anchor="middle" fill="#6dbe6d" font-size="8">2.1%</text>
+            <text x="585" y="155" text-anchor="middle" fill="#6dbe6d" font-size="8">2.1%</text>
+            <text x="65" y="168" text-anchor="middle" fill="#9b82c8" font-size="7">0.1%</text>
+            <text x="635" y="168" text-anchor="middle" fill="#9b82c8" font-size="7">0.1%</text>
+          </svg>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Rule</th><th>Range</th><th>% of observations</th><th>Breakdown</th></tr></thead>
+            <tbody>
+              <tr><td><strong>68% Rule</strong></td><td>μ−1σ to μ+1σ</td><td><strong>68%</strong></td><td>34.1% + 34.1%</td></tr>
+              <tr><td><strong>95% Rule</strong></td><td>μ−2σ to μ+2σ</td><td><strong>95%</strong></td><td>13.6% + 34.1% + 34.1% + 13.6%</td></tr>
+              <tr><td><strong>99.7% Rule</strong></td><td>μ−3σ to μ+3σ</td><td><strong>99.7%</strong></td><td>2.1% + 13.6% + 34.1% + 34.1% + 13.6% + 2.1%</td></tr>
+              <tr><td><strong>Outer tails</strong></td><td>Beyond ±3σ</td><td><strong>0.3%</strong> (total)</td><td>0.15% each tail</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Z-Score Table -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t10)">📉 Z-Score — Formula &amp; Examples</div>
+        <div class="formula-box" style="font-size:18px;">z = (x − μ) / σ</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Student</th><th>Measurement</th><th>Variable</th><th>Mean (μ)</th><th>SD (σ)</th><th>Raw Score</th><th>Z-Score</th><th>Interpretation</th></tr></thead>
+            <tbody>
+              <tr><td>Alex</td><td>Height</td><td>Height</td><td>170 cm</td><td>5 cm</td><td>180 cm</td><td><code>(180−170)/5 = +2</code></td><td>2 SD taller than average</td></tr>
+              <tr><td>Sam</td><td>Weight</td><td>Weight</td><td>70 kg</td><td>10 kg</td><td>70 kg</td><td><code>(70−70)/10 = 0</code></td><td>Exactly average weight</td></tr>
+              <tr><td>Jamie</td><td>Exam score</td><td>Score</td><td>75</td><td>5 points</td><td>85 points</td><td><code>(85−75)/5 = +2</code></td><td>2 SD above average exam performance</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cc-tip">Key Insight: Alex (z=+2 on height) and Jamie (z=+2 on exam) are <strong>equally outstanding</strong> relative to their respective distributions — even though 180 cm ≠ 85 points. Z-scores put everyone on the same ruler!</div>
+        <div class="table-wrap" style="margin-top:14px">
+          <table class="data-table">
+            <thead><tr><th>Z-Score Value</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>z = 0</td><td>Exactly at the mean</td></tr>
+              <tr><td>z = +1</td><td>1 SD above the mean</td></tr>
+              <tr><td>z = −1</td><td>1 SD below the mean</td></tr>
+              <tr><td>z large (e.g. +3)</td><td>Very unusual / extreme (the SIZE tells you unusualness)</td></tr>
+              <tr><td>z between −3 and +3</td><td>Normal range (99.7% of observations in a normal distribution)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cc-tip" style="margin-top:10px">Standard Normal Distribution notation: <strong>N(0, 1)</strong> — mean = 0, standard deviation = 1. When data are standardised into z-scores they follow N(0,1). Cumulative proportion: P(X ≤ x) = area under normal curve to the LEFT. P(X > x) = 1 − P(X ≤ x).</div>
+      </div>
+
+      <!-- Frequency Terms -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t11)">📋 Frequency Terms — Q-Q Plot &amp; Reference Table</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Frequency</strong></td><td>The number of times a specific value or score occurs. How many times something happens.</td></tr>
+              <tr><td><strong>Cumulative Frequency</strong></td><td>The running total of frequencies.</td></tr>
+              <tr><td><strong>Frequency Percentage</strong></td><td>The percentage of the total sample that reported a specific value.</td></tr>
+              <tr><td><strong>Cumulative Frequency Percentage</strong></td><td>The running total of the percentages (Percentile Rank).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="diagram-row">
+          <div class="diag-box">
+            <h4 style="color:var(--t11)">Q-Q Plot (Normal Quantile Plot)</h4>
+            <p style="font-size:13px; color:var(--text-dim); line-height:1.6;">Used to <strong>assess whether data come from a normal distribution</strong>. A normal quantile plot compares:<br>• The <em>observed data values</em> with<br>• The <em>expected values from a normal distribution</em><br><br>Each point represents one observation.<br><br>⚠️ When a stemplot or histogram appears roughly symmetric and unimodal, visual inspection alone is NOT precise enough.</p>
+          </div>
+          <div class="diag-box">
+            <h4 style="color:var(--t11)">How to Read a Q-Q Plot</h4>
+            <ul class="bullet">
+              <li><strong>Points close to a straight line</strong> → data approximately normally distributed ✓</li>
+              <li><strong>Systematic deviations</strong> from straight line → data are NOT normally distributed ✗</li>
+              <li><strong>Curved shape</strong> → skewed data</li>
+              <li><strong>S-shape</strong> → tails too heavy or too light</li>
+              <li><strong>Random small noise</strong> is fine</li>
+              <li><strong>Patterned deviation is not</strong> fine</li>
+              <li><strong>Memory hook:</strong> "Outliers refuse to stand in line"</li>
+            </ul>
+          </div>
+        </div>
+        <div class="cc-tip">The optional reference line on a Q-Q plot: A reference line may be drawn where mean = sample mean and standard deviation = sample standard deviation. This line serves as a benchmark — "this is where normal data should be." Do the points follow it, or do they drift away?</div>
+      </div>
+
+      <!-- Conceptual vs Operational -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t4)">📏 Conceptual vs Operational Definitions</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Type</th><th>What it answers</th><th>Properties</th><th>Examples</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Conceptual Definition (THE IDEA)</strong></td><td>"What do we mean by this concept?"</td><td>Abstract; shared meaning</td><td>Stress = a psychological state of perceived pressure; Intelligence = ability to reason, solve problems, learn; Distraction = reduced attentional focus on a primary task</td></tr>
+              <tr><td><strong>Operational Definition (THE MEASUREMENT)</strong></td><td>"How exactly did we measure it?"</td><td>Concrete; observable; replicable</td><td>Stress = score on a 10-item stress questionnaire; Intelligence = IQ test score; Distraction = reaction time delay while driving</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cc-warning">A variable MUST have an operational definition to be used in research. Conceptual definitions ensure scientific clarity, not measurement.</div>
+      </div>
+
+      <!-- Rate vs Count -->
+      <div class="vr-section">
+        <div class="vr-title" style="color:var(--t4)">📏 Rate vs Count — Why We Standardize Data</div>
+        <div class="diagram-row">
+          <div class="diag-box">
+            <h4 style="color:var(--t4)">Count</h4>
+            <p style="font-size:13px; color:var(--text-dim);">Raw number of occurrences. Counts can be <strong>misleading when group sizes differ</strong>. Same count ≠ same success when sample sizes differ.</p>
+          </div>
+          <div class="diag-box">
+            <h4 style="color:var(--t4)">Rate</h4>
+            <p style="font-size:13px; color:var(--text-dim);">Compares an outcome relative to the number of cases. <strong>Rates allow fair comparison.</strong><br>Example: University A: 100 passes/1000 → 10%; University B: 100 passes/400 → 25%. Same count ≠ same success!</p>
+          </div>
+          <div class="diag-box">
+            <h4 style="color:var(--t4)">Hypothetical Constructs</h4>
+            <p style="font-size:13px; color:var(--text-dim);">A variable that <strong>cannot be directly observed</strong>. Is inferred from behavior or responses. You never observe the construct itself — you observe <strong>indicators</strong>.<br>Examples: Hunger, Motivation, Attention, Intelligence, Anxiety</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end visual view -->
+
+    <!-- VIEW 4: MCQ EXAM -->
+    <div class="view" id="view-mcq">
+      <div class="section-head">MCQ Practice Exam</div>
+      <div class="section-sub">Click an answer option to check it immediately · All correct answers are highlighted ✓ in green</div>
+      <div class="mcq-score-banner">
+        <div class="mcq-score-num" id="mcq-score-display">0</div>
+        <div>
+          <div class="mcq-score-label" id="mcq-score-label" style="font-weight:600; color:var(--text);">/ 0 answered</div>
+          <div class="mcq-score-label" id="mcq-score-pct">Start answering questions below</div>
+        </div>
+        <button onclick="resetMCQ()" style="margin-left:auto; padding:8px 18px; border-radius:8px; border:1.5px solid rgba(201,169,110,.3); background:none; color:var(--gold); cursor:pointer; font-family:'DM Sans',sans-serif;">↺ Reset All</button>
+      </div>
+      <div class="mcq-grid" id="mcq-grid"></div>
+    </div>
+
+  </div><!-- end view-area -->
+</div><!-- end main -->
+</div><!-- end app -->
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const TOPIC_COLORS = {
+  t1:'#8b7fd4', t2:'#5a9fd4', t3:'#6dbe6d', t4:'#c9a96e',
+  t5:'#e06868', t6:'#f09050', t7:'#45c5c5', t8:'#d4b020',
+  t9:'#d480b8', t10:'#70aed4', t11:'#a882d4'
+};
+const TOPIC_NAMES = {
+  t1:'Data Fundamentals', t2:'Variable Types', t3:'Research Variables',
+  t4:'Measurement', t5:'Accuracy·Reliability·Validity',
+  t6:'Graphical Displays', t7:'Center & Spread', t8:'Linear Transformation',
+  t9:'Normal Distribution', t10:'Z-Scores', t11:'Q-Q Plot & Frequencies'
+};
+const TOPIC_ICONS = {
+  t1:'📊', t2:'🔢', t3:'🔬', t4:'📏', t5:'🎯',
+  t6:'📈', t7:'📐', t8:'⚡', t9:'🔔', t10:'📉', t11:'📋'
+};
+
+const conceptCards = [
+  // T1: DATA FUNDAMENTALS
+  { id:'c1', topic:'t1', title:'What is Statistics / Data?',
+    def:'<strong>Statistics</strong> answers one simple question: "What do my data look like?" It always asks: What kind of data do I have? How are they spread? Where is the middle? Are there strange values? Does it look normal?<br><br><strong>Data</strong> is the beginning of every statistical analysis. Data are numbers or labels collected in a specific context. We shape data by first deciding which cases we want to investigate, then recording information about characteristics (variables) for each case.',
+    tip:'Everything you learned fits into that story. Numbers without context are meaningless in statistics.',
+    examples:['Survey responses', 'Exam scores', 'Height measurements', 'Diagnoses'],
+    exam_q:'What question does statistics fundamentally answer?',
+    exam_a:'Statistics answers: "What do my data look like?" — asking about what kind of data, how they spread, where the middle is, and whether there are strange/extreme values.' },
+  { id:'c2', topic:'t1', title:'Case, Variable, Value, Label',
+    def:'<strong>Case:</strong> A case is WHO or WHAT is being described. Observations/instances described by a set of data. Examples: a person, a company, a country, a student.<br><br><strong>Variable:</strong> Think of variables as the TYPE OF ANSWERS PEOPLE GIVE. Variables are the characteristics or properties you measure or observe. They fall into categories that determine how you can analyze them.<br><br><strong>Value:</strong> A value is the recorded outcome of a variable for one case. Example: Age = 21.<br><br><strong>Label:</strong> A label identifies cases but is NOT analyzed numerically. Examples: name, ID number, country code. A label is a variable used ONLY to identify cases.',
+    tip:'"Numbers without context are meaningless in statistics."',
+    exam_q:'What is the difference between a case, variable, value, and label?',
+    exam_a:'Case = who/what is described (a person, company). Variable = the characteristic measured (age, diagnosis). Value = the recorded outcome for one case (age=21). Label = identification only, not used in analysis (ID, name).' },
+  { id:'c3', topic:'t1', title:'EDA vs Predictive Analysis',
+    def:'<strong>Exploratory Data Analysis (EDA):</strong> Uses graphs + numerical summaries. Goal: DISCOVER patterns, shape, outliers. Looking first. EDA = understand data.<br><br><strong>Predictive Analysis:</strong> Uses models (e.g., regression). Goal: FORECAST outcomes. Predicts one variable from another. Predictive = forecast outcomes.',
+    tip:'Exam distinction: EDA = understand data. Predictive = forecast outcomes.',
+    exam_q:'What is the key difference between EDA and Predictive Analysis?',
+    exam_a:'EDA (Exploratory Data Analysis) uses graphs and numerical summaries to discover patterns and understand data — it looks at data first. Predictive Analysis uses statistical models (e.g., regression) to forecast outcomes and predict one variable from another.' },
+
+  // T2: VARIABLE TYPES
+  { id:'c4', topic:'t2', title:'Categorical vs Numerical — The Big First Split',
+    def:'The MOST important first split in statistics. Always ask: Is this a name/label, or is this a number? Two big families:<br><br><strong>1. CATEGORICAL variables:</strong> Describe a quality or category. No numbers with meaning. You COUNT, not calculate.<br><br><strong>2. NUMERICAL variables:</strong> Describe a measurable quantity. You CALCULATE, compare, average. "If I can say \'on average\', it is numerical."',
+    tip:'Memory trick: "If I cannot calculate an average, it is categorical."',
+    examples:['Categorical: Gender, Blood type, Nationality', 'Numerical: Age, Height, Test score'],
+    exam_q:'How do you determine whether a variable is categorical or numerical?',
+    exam_a:'Ask: Can I calculate a meaningful average? If yes → numerical. If not (because it\'s a name/label/category without meaningful distance) → categorical. Memory trick: "If I cannot calculate an average, it is categorical."' },
+  { id:'c5', topic:'t2', title:'Nominal Variables',
+    def:'<strong>Nominal variables</strong> are categorical variables that describe a quality or category, with NO numbers with meaning and NO intrinsic order between categories. You COUNT them, you do not calculate. You cannot rank them meaningfully.',
+    tip:'Memory trick: "You count, not calculate." If I cannot calculate an average, it is categorical.',
+    examples:['Gender', 'Nationality → Dutch, Turkish, Japanese', 'Blood type → A, B, AB, O', 'Diagnosis', 'Favorite color', 'Eye color (Blue, Brown, Green)'],
+    exam_q:'A researcher records whether participants have blood type A, B, AB, or O. What type of variable is this?',
+    exam_a:'This is a nominal variable. Blood type is categorical with no meaningful order between categories (AB is not "more" than A). You can only count how many people have each blood type.' },
+  { id:'c6', topic:'t2', title:'Ordinal Variables',
+    def:'<strong>Ordinal variables</strong> are categorical variables with a meaningful ORDER/RANK — BUT the difference between levels is NOT equal. You can say "higher" or "lower" but you cannot say "the difference between moderate and severe pain = 2 units" because the intervals are not meaningful.',
+    warning:'Order matters, BUT you CANNOT say "the difference between moderate and severe pain = 2 units."',
+    examples:['Satisfaction Rating (Very Satisfied > Satisfied > Neutral > Dissatisfied)', 'Education level (primary < high school < university)', 'Pain level (mild < moderate < severe)', 'Customer satisfaction', 'Socioeconomic status (low < middle < high)'],
+    exam_q:'A survey asks: "How satisfied are you?" with options: Very Satisfied / Satisfied / Neutral / Dissatisfied. What type of variable is this?',
+    exam_a:'This is an ordinal variable. There is a clear meaningful order (Very Satisfied > Satisfied > Neutral > Dissatisfied), but we CANNOT say the difference between "Very Satisfied" and "Satisfied" equals the difference between "Neutral" and "Dissatisfied" — the intervals are not equal.' },
+  { id:'c7', topic:'t2', title:'Discrete vs Continuous (Numerical)',
+    def:'<strong>Discrete variables</strong> come from COUNTING. They always give whole numbers — no decimals possible. "You cannot have 2.5 children."<br><br><strong>Continuous variables</strong> come from MEASURING. They can take ANY value including decimals. Divided into Interval and Ratio subtypes.',
+    examples:['Discrete: Number of children → 0,1,2,3', 'Discrete: Goals in a match → 1,2,3', 'Discrete: Students in a class → 25,26,27', 'Continuous: Height (can be 175.3 cm)', 'Continuous: Reaction time (can be 0.342 seconds)'],
+    exam_q:'Why is "number of goals in a football match" a discrete variable?',
+    exam_a:'Because it comes from counting, always produces whole numbers, and cannot have decimal values — you cannot score 2.5 goals. This makes it discrete.' },
+  { id:'c8', topic:'t2', title:'Interval vs Ratio Variables',
+    def:'Both are continuous numerical variables. The difference lies in the zero point:<br><br><strong>Interval:</strong> Difference between values is meaningful, BUT ZERO is arbitrary (does NOT mean "none of the quantity"). You cannot multiply: 20°C is NOT twice as hot as 10°C ✗<br><br><strong>Ratio:</strong> Difference is meaningful AND zero means "none of the quantity" (true zero). You CAN multiply: 20 kg IS twice as heavy as 10 kg ✓',
+    tip:'"20°C is twice as hot as 10°C" ✗ WRONG. "20 kg is twice as heavy as 10 kg" ✓ CORRECT.',
+    examples:['Interval: Temperature °C (0°C ≠ no temperature)', 'Interval: IQ scores (0 IQ ≠ no intelligence)', 'Interval: Calendar years (Year 0 is arbitrary)', 'Ratio: Height (0 cm = no height)', 'Ratio: Weight (0 kg = no weight)', 'Ratio: Reaction time (0 ms = instant)', 'Ratio: Age (0 = newborn)', 'Ratio: Income (0 = no income)'],
+    exam_q:'Why is temperature in Celsius an interval variable and not a ratio variable?',
+    exam_a:'Because 0°C does NOT mean "no temperature" — it is an arbitrary zero point. You cannot say 20°C is twice as hot as 10°C. For a ratio variable, zero must mean "none of the quantity" (like 0 kg = no weight, or 0 cm = no height).' },
+
+  // T3: RESEARCH VARIABLES
+  { id:'c9', topic:'t3', title:'Independent Variable (IV)',
+    def:'The <strong>Independent Variable (IV)</strong> is also called the <strong>Explanatory Variable</strong>. Think: "What do we think CAUSES changes?" In graphs: plotted on the X-axis.<br><br>Properties: Explains or predicts another variable; influences/predicts the dependent variable; in experiments it is the variable that is manipulated or controlled.',
+    examples:['Hours studied', 'Teaching method', 'Exercise intensity', 'Price of a product', 'Type of drug given'],
+    exam_q:'Write an exam sentence using the Independent Variable correctly.',
+    exam_a:'"Exam score is the dependent variable because it responds to changes in hours studied (the independent variable)." Always: IV → X-axis, causes or predicts, stated before "predicts/affects/influences" the DV.' },
+  { id:'c10', topic:'t3', title:'Dependent Variable (DV)',
+    def:'The <strong>Dependent Variable (DV)</strong> is also called the <strong>Response Variable</strong>. Think: "What CHANGES as a result?" In graphs: plotted on the Y-axis. Pattern shows how the response changes when the explanatory variable changes.<br><br>Properties: Measured as an outcome; responds to/depends on the IV.',
+    examples:['Exam score', 'Learning performance', 'Heart rate', 'Sales volume', 'Anxiety level'],
+    exam_q:'In a study of how exercise intensity affects heart rate, identify the DV.',
+    exam_a:'Heart rate is the dependent variable because it responds to/depends on changes in exercise intensity (the IV). It is the outcome we are measuring.' },
+  { id:'c11', topic:'t3', title:'Situational vs Subject Variables',
+    def:'<strong>Situational Variables:</strong> A situational variable describes the ENVIRONMENT, condition, or context in which the data are collected. Characteristics differ between environment or stimuli. NOT an inherent trait of the person. Often manipulated or assigned. Common in experiments. Think: "What situation was the subject placed IN?"<br><br><strong>Subject Variables:</strong> A subject variable describes a PRE-EXISTING CHARACTERISTIC of individuals. Cannot be assigned or manipulated. Measured, not controlled. Common in observational studies. Think: "Who the person already IS."',
+    warning:'With subject variables, you CANNOT claim causation — only association.',
+    examples:['Situational: Type of classroom (online vs in-person)', 'Situational: Noise level (quiet vs noisy)', 'Situational: Temperature of the room', 'Subject: Age', 'Subject: Gender', 'Subject: Personality trait', 'Subject: Education level', 'Subject: Nationality'],
+    exam_q:'A study compares exam scores across genders. What type of variable is gender here?',
+    exam_a:'Gender is a subject variable — it is a pre-existing characteristic of the individual that cannot be assigned or manipulated. Groups are compared but gender is not manipulated; you cannot claim causation, only association.' },
+  { id:'c12', topic:'t3', title:'Mediator Variable',
+    def:'A <strong>mediator variable</strong> (THE "WHY" VARIABLE) explains HOW or WHY the independent variable affects the dependent variable. It sits IN THE MIDDLE of the causal chain: X → Mediator → Y. A mediator variable explains how the independent variable affects the dependent variable.<br><br><strong>Structure:</strong> X influences the mediator. The mediator then influences Y. Once the mediator is accounted for, the direct effect of X on Y is reduced.',
+    tip:'Exam language: Look for words like "because," "through," "by increasing," "explains how." "Understanding mediates the relationship between study time and exam score."',
+    exam_q:'Study time (X) → Understanding (M) → Exam score (Y). What role does Understanding play?',
+    exam_a:'Understanding is the mediator variable. It explains WHY study time affects exam scores: studying more increases understanding, and better understanding increases exam scores. The mediator sits in the MIDDLE of the causal chain and explains HOW X leads to Y.' },
+  { id:'c13', topic:'t3', title:'Moderator Variable',
+    def:'A <strong>moderator variable</strong> (THE "WHEN/FOR WHOM" VARIABLE) changes the STRENGTH or DIRECTION of the relationship between the independent and dependent variable. It does NOT sit in the middle — it modifies the relationship between X and Y from the outside, creating an interaction.<br><br><strong>Structure:</strong> The effect of X on Y DEPENDS ON the level of the moderator. The moderator does not sit in the middle.',
+    tip:'Exam language: "Motivation moderates the relationship between study time and exam score." Look for: "depends on," "stronger for," "weaker when," "interaction."',
+    examples:['Study time (X) → Exam score (Y), moderated by Motivation: effect is stronger for highly motivated students, weaker for low-motivation students'],
+    exam_q:'How is a moderator variable different from a mediator variable?',
+    exam_a:'A mediator explains WHY X affects Y (sits in the middle, X→M→Y). A moderator changes HOW STRONG or IN WHAT DIRECTION X affects Y (sits outside, changes the X→Y relationship). Mediator = "because/through"; Moderator = "depends on/when/for whom".' },
+
+  // T4: MEASUREMENT
+  { id:'c14', topic:'t4', title:'Conceptual vs Operational Definitions',
+    def:'<strong>Conceptual Definition (THE IDEA):</strong> A conceptual definition explains what a variable IS in theory. It is abstract and provides shared meaning. Answers: "What do we mean by this concept?"<br><br><strong>Operational Definition (THE MEASUREMENT):</strong> An operational definition specifies HOW the variable is measured or manipulated. It is concrete, observable, and replicable. Answers: "How exactly did we measure it?"<br><br>Conceptual definitions ensure scientific CLARITY, not measurement. A variable MUST have an operational definition to be used in research.',
+    examples:['Stress (conceptual) = psychological state of perceived pressure', 'Stress (operational) = score on a 10-item stress questionnaire', 'Intelligence (conceptual) = ability to reason, solve problems, learn', 'Intelligence (operational) = IQ test score', 'Distraction (conceptual) = reduced attentional focus on a primary task', 'Distraction (operational) = reaction time delay while driving'],
+    exam_q:'What is the difference between a conceptual and an operational definition of "intelligence"?',
+    exam_a:'Conceptual: Intelligence = ability to reason, solve problems, and learn (abstract, shared meaning). Operational: Intelligence = IQ test score (specific, measurable, replicable). A variable must have an operational definition to be used in research.' },
+  { id:'c15', topic:'t4', title:'Measurement Instruments & Hypothetical Constructs',
+    def:'<strong>Measurement Instruments:</strong> A measurement instrument is the TOOL used to operationalize a variable. Different fields use different instruments. Examples: Questionnaire, Cognitive test, Scale, Observation checklist, Measuring device. (Psychology → questionnaires/tests; Sports science → physical measurement device).<br><br><strong>Hypothetical Constructs:</strong> A hypothetical construct is a variable that CANNOT be directly observed. It is inferred from behavior or responses. You NEVER observe the construct itself — you observe its INDICATORS. Very important for psychology exams.',
+    tip:'"Inferred" = okuyarak değil, uçlarından anlayarak, değil "directly" görerek.',
+    examples:['Hypothetical constructs: Hunger, Motivation, Attention, Intelligence, Anxiety', 'You observe indicators (behaviors, test scores) NOT the construct itself'],
+    exam_q:'Why is "motivation" considered a hypothetical construct?',
+    exam_a:'Motivation cannot be directly observed — you cannot see or touch it. It is inferred from observable behavior or responses (e.g., effort put in, persistence, performance). You observe indicators of motivation, not motivation itself.' },
+  { id:'c16', topic:'t4', title:'Label Variables & Rate',
+    def:'<strong>Label Variables (IDENTIFICATION, NOT ANALYSIS):</strong> A label is a variable used ONLY to identify cases. Labels are NEVER analyzed statistically. They are NOT independent or dependent variables. Examples: ID number, Student number, Participant code.<br><br><strong>Rate (WHY WE STANDARDIZE DATA):</strong> A rate compares an outcome relative to the NUMBER OF CASES. Counts can be misleading when group sizes differ — same count ≠ same success. Rates allow FAIR comparison.<br><br>Example: University A: 100 passes out of 1000 → 10%. University B: 100 passes out of 400 → 25%. Same count ≠ same success!',
+    warning:'Labels are never analyzed statistically. They are not independent or dependent variables.',
+    exam_q:'Why might raw counts be misleading when comparing two universities\' exam pass rates?',
+    exam_a:'Because the sample sizes differ. University A: 100/1000 = 10%; University B: 100/400 = 25%. The same COUNT does not mean the same SUCCESS RATE. Rates allow fair comparison by standardizing for group size.' },
+
+  // T5: ACCURACY, RELIABILITY, VALIDITY
+  { id:'c17', topic:'t5', title:'Accuracy (Systematic Error / BIAS)',
+    def:'<strong>Accuracy</strong> refers to how close a measurement is to the TRUE VALUE. Affected by systematic error (BIAS). Error is consistent and predictable.<br><br>Important distinctions:<br>• Accurate ≠ Reliable<br>• You CAN be consistent but WRONG (reliable but not accurate)<br>• A scale that always shows +2 kg too much is reliable (consistent) but NOT accurate (biased)',
+    tip:'Accurate ≠ Reliable. Reliable ≠ Accurate.',
+    examples:['A biased scale that always shows +2 kg too much — consistent (reliable) but wrong (not accurate)'],
+    exam_q:'Can a measurement be reliable but not accurate? Give an example.',
+    exam_a:'Yes! A scale that always shows +2 kg too much is reliable (consistent, gives the same result every time) but NOT accurate (it does not reflect the true value). Systematic error (bias) affects accuracy, not reliability.' },
+  { id:'c18', topic:'t5', title:'Reliability — Types',
+    def:'<strong>Reliability</strong> refers to the CONSISTENCY or REPEATABILITY of a measurement. A measurement is reliable if it produces similar results under consistent conditions, indicating low random measurement error.<br><br>⚠️ Reliability concerns CONSISTENCY, not accuracy or validity.<br><br><strong>Three Types:</strong><br>1. <strong>Test–Retest Reliability:</strong> Same instrument, same participants, different times → high correlation = reliable.<br>2. <strong>Split-Half Reliability:</strong> Divide test into two halves (odd/even items); examine correlation → assesses internal consistency.<br>3. <strong>Interobserver Reliability:</strong> Two+ independent observers assess same phenomenon → measures agreement between raters.',
+    tip:'This type of reliability evaluates the STABILITY of a measurement over time (Test-Retest) or the CONSISTENCY within the test itself (Split-Half) or between raters (Interobserver).',
+    exam_q:'A questionnaire is given to the same group twice, 4 weeks apart. The correlation between scores is r=.85. What type of reliability does this demonstrate?',
+    exam_a:'Test-Retest Reliability — assessing the stability of the measurement over time. Same instrument, same participants, different time points. The high correlation (r=.85) indicates the questionnaire produces consistent results over time.' },
+  { id:'c19', topic:'t5', title:'Validity — Overview & Types',
+    def:'<strong>Validity (MEASURING WHAT YOU THINK YOU MEASURE)</strong><br>Whether the instrument actually measures the INTENDED CONSTRUCT. Validity concerns the meaning and interpretation of test scores, not merely their consistency.<br><br>Key sentence: "A test can be reliable but not valid."<br><br><strong>4 Main Types:</strong><br>1. Face Validity — does it LOOK valid? (surface logic)<br>2. Content Validity — does it COVER the entire domain?<br>3. Criterion Validity (Predictive + Concurrent) — does it relate to a criterion?<br>4. Construct Validity (Convergent + Discriminant) — does it behave as theory predicts?',
+    tip:'Construct validity is considered the MOST COMPREHENSIVE form of validity.',
+    exam_q:'What is the most important difference between reliability and validity?',
+    exam_a:'Reliability is about CONSISTENCY — does the measurement give the same result repeatedly? Validity is about ACCURACY of meaning — does the measurement actually measure what it claims to? You can have high reliability (consistent results) without high validity (measuring the wrong thing).' },
+  { id:'c20', topic:'t5', title:'Face & Content Validity',
+    def:'<strong>Face Validity:</strong> Does the instrument LOOK LIKE it measures the construct? Based on intuitive/logical assessment on the surface. Not statistically tested. Concerns appearance based on subjective judgment. ⚠️ Face validity does NOT guarantee actual validity but CAN affect acceptance of the test.<br><br><strong>Content Validity:</strong> Does the instrument cover the ENTIRE DOMAIN of the construct? Focuses on coverage. Evaluates whether all relevant components of the construct\'s domain are included. Commonly assessed by expert judgment. Especially important for educational and achievement tests.',
+    examples:['Face: A stress questionnaire that asks about stressful events LOOKS valid', 'Content: An exam covering ALL chapters of a course has higher content validity than one covering only small portion'],
+    exam_q:'What is the key difference between face validity and content validity?',
+    exam_a:'Face validity = does the test LOOK like it measures the construct (surface appearance, subjective judgment). Content validity = does the test COVER the entire domain of the construct (breadth, expert review). Both are logical/expert-based, but content validity is more rigorous and important for achievement tests.' },
+  { id:'c21', topic:'t5', title:'Criterion Validity (Predictive & Concurrent)',
+    def:'<strong>Criterion Validity</strong> = the relationship between test score and outcome. Assesses whether test is associated with a relevant real-world measure.<br><br><strong>Predictive Validity:</strong> The extent to which a test score accurately PREDICTS A FUTURE criterion. The criterion is measured at a LATER point in time.<br><br><strong>Concurrent Validity:</strong> The extent to which test scores are correlated with scores on an established measure of the SAME construct, assessed at the SAME time. Comparing a NEW intelligence test with an EXISTING, VALIDATED intelligence test — measured simultaneously.',
+    tip:'Key timing rule: Predictive = criterion at LATER point in time. Concurrent = criterion at SAME time.',
+    examples:['Predictive: High school grades → college academic success', 'Concurrent: New IQ test vs existing IQ test given simultaneously'],
+    exam_q:'Researchers want to validate a new intelligence test. They administer it alongside an established, validated intelligence test at the same time. What type of validity are they assessing?',
+    exam_a:'Concurrent validity — they are assessing whether the new intelligence test correlates with scores on an existing, validated measure of the same construct (intelligence), measured simultaneously. The criterion is measured at the SAME time.' },
+  { id:'c22', topic:'t5', title:'Construct Validity (Convergent & Discriminant)',
+    def:'<strong>Construct Validity (VERY IMPORTANT)</strong> — Construct validity is considered the most comprehensive form of validity. It evaluates whether the measurement instrument behaves in accordance with theoretical expectations regarding the construct it is intended to measure.<br><br><strong>Convergent Validity:</strong> HIGH correlation with similar measures → supports construct validity. "High correlation with similar constructs SUPPORTS construct validity."<br><br><strong>Discriminant Validity:</strong> LOW correlation with different constructs → supports construct validity. Measurement should NOT correlate strongly with measures of theoretically unrelated constructs.',
+    tip:'Convergent = correlates WITH similar measures ✓; Discriminant = does NOT correlate with different constructs ✓. Together they show the test behaves as theory predicts.',
+    exam_q:'A new anxiety scale shows high correlation with other anxiety measures (r=.80) but low correlation with a physical strength test (r=.10). What does this demonstrate?',
+    exam_a:'Both convergent validity (high correlation with similar measures = other anxiety scales) AND discriminant validity (low correlation with theoretically unrelated construct = physical strength). Together they provide strong evidence for construct validity.' },
+
+  // T6: GRAPHICAL DISPLAYS
+  { id:'c23', topic:'t6', title:'Histogram',
+    def:'A <strong>histogram</strong> is used for QUANTITATIVE/NUMERICAL data. It shows how often each value or range of values occurs in a dataset. Bars TOUCH because the data is continuous. Used for LARGE data sets. Shows overall shape clearly.<br><br>Key features: Groups data into BINS (ranges); bars touch (continuous); best for large data sets; shows overall shape.',
+    warning:'Bars TOUCH in a histogram because the data is continuous. If bars do NOT touch → it\'s a bar chart, not a histogram.',
+    exam_q:'What is the key visual difference between a histogram and a bar chart, and why does that difference exist?',
+    exam_a:'In a histogram, bars TOUCH each other — because the data is continuous numerical (no gap between ranges). In a bar chart, bars are SEPARATE — because the data is categorical (distinct, non-continuous categories). The touching/separation reflects the nature of the data.' },
+  { id:'c24', topic:'t6', title:'Bar Chart, Pie Chart & Timeplot',
+    def:'<strong>Bar Chart (Bar Graph):</strong> Used for CATEGORICAL data. Each bar is SEPARATE because categories are discrete. Bars do not touch. Compares groups/categories.<br><br><strong>Pie Chart:</strong> Used for showing the PROPORTION of categorical data as a slice of a whole. Distribution of a Categorical Variable. Summarized using: Count (frequency) and Percent. ⚠️ Exam note: Counts depend on sample size; percents do not.<br><br><strong>Timeplot (Time Series Plot):</strong> A graph that shows the values of a variable OVER TIME. The time variable is placed on the horizontal axis; the measured variable is on the vertical axis. Time plots are used to identify patterns over time: trends, cycles, seasonal variation, and sudden changes.',
+    examples:['Bar chart: Comparing pass rates by country', 'Pie chart: Distribution of blood types in a sample', 'Timeplot: Changes in average IQ scores from 1950 to 2025'],
+    exam_q:'When would you use a pie chart rather than a bar chart?',
+    exam_a:'Use a pie chart when you want to show how categories make up a WHOLE (proportions adding to 100%). Use a bar chart when comparing the SIZE of categories to each other. Pie charts show "slice of the whole"; bar charts show "comparison between groups".' },
+  { id:'c25', topic:'t6', title:'Stemplot (Stem-and-Leaf Plot)',
+    def:'A <strong>stemplot</strong> (stem-and-leaf plot) is best for SMALL data sets. It preserves actual data values (unlike a histogram which groups into bins). Shows the distribution while keeping the original data.<br><br>Reading key: 1|7 = 17 birds.<br>Example — Number of Birds at a Watering Hole Each Hour:<br>Stem | Leaf<br>1 | 3 4 6 7 8 2<br>2 | 7 8 3 5 8<br>3 | 2 5 9<br>4 | 4 6<br>5 | 9<br>6 | 7',
+    tip:'Best for small data sets; preserves actual data values. Unlike histogram which groups into bins.',
+    exam_q:'What advantage does a stemplot have over a histogram?',
+    exam_a:'A stemplot PRESERVES the actual data values, while a histogram groups data into bins (losing individual values). Stemplot is best for SMALL data sets.' },
+  { id:'c26', topic:'t6', title:'Box Plot & Five-Number Summary',
+    def:'A <strong>boxplot (box-and-whisker plot)</strong> is a graphical display of the five-number summary. Shows what is INSIDE your data. It shows: Center (median), Spread (IQR = width of box), Skewness (unequal whisker lengths), Outliers (individual points beyond whiskers).<br><br>Anatomy: min → lower whisker → Q1 (lower quartile) → median line → Q3 (upper quartile) → upper whisker → max. Width of box = IQR. Whiskers extend to min/max OR to fence limits.',
+    tip:'Use boxplots when you want to: Compare distributions across groups, Identify outliers, Describe skewness, Summarize data without assuming normality. Boxplots are especially useful for quantitative data.',
+    exam_q:'How do you identify skewness from a boxplot?',
+    exam_a:'Check the median line location within the box and whisker lengths: Median closer to Q1 → right skewed (more data in lower half); Median closer to Q3 → left skewed; Equal whisker lengths → no skew (symmetric). Unequal whisker lengths also indicate skew.' },
+  { id:'c27', topic:'t6', title:'SOCS Framework & Shape Vocabulary',
+    def:'<strong>SOCS (Core Exam Framework)</strong> — Always describe distributions using SOCS:<br>S — Shape (general pattern)<br>O — Outliers (individual deviations)<br>C — Center (mean/median/mode)<br>S — Spread (range, IQR, SD)<br><br><strong>Shape Vocabulary:</strong> A distribution can be: UNIMODAL (one large peak), BIMODAL (two peaks), SYMMETRIC (mirror images), SKEWED RIGHT (long tail to right; mean pulled right), SKEWED LEFT (long tail to left; mean pulled left).',
+    tip:'Memory hook: "Mean follows the tail." In right skew: mean > median. In left skew: mean < median. Median stays put — resistant to extreme values.',
+    exam_q:'You see a distribution where the mean is 45 and the median is 38. What does this tell you about the shape?',
+    exam_a:'The distribution is RIGHT SKEWED (positively skewed). The mean (45) is larger than the median (38), which means the mean has been pulled to the RIGHT by a long tail of high values. "Mean follows the tail."' },
+
+  // T7: CENTER & SPREAD
+  { id:'c28', topic:'t7', title:'Mean, Median, Mode',
+    def:'<strong>Mean (Average):</strong> Sum of all values divided by n. Uses ALL values. Image: "One very rich person makes the average income look high." ✓ Uses all values. ✗ Easily distorted by outliers.<br><br><strong>Median:</strong> Middle value when data is ordered. 50% above, 50% below. ✓ Stable. ✓ Not affected by extremes. Resistant to outliers.<br><br><strong>Mode:</strong> The value that appears MOST FREQUENTLY. Most common value. Daily Example: In a survey of favorite ice cream flavors, the MODE is the most popular flavor.',
+    tip:'Exam rule: Symmetric → use MEAN. Skewed or outliers → use MEDIAN. "If I can say on average, it is numerical."',
+    examples:['Mean: Bills $30, $35, $40, $45, $150 → mean = $60 (distorted by outlier)', 'Median: $40 (better representative in this case)'],
+    exam_q:'A dataset has one extreme outlier. Which measure of central tendency should you use and why?',
+    exam_a:'Use the MEDIAN — it is resistant to outliers (it is the middle value regardless of extreme values). The MEAN is easily distorted by outliers: one very high/low value can pull the mean far from the "typical" value. Median stays stable.' },
+  { id:'c29', topic:'t7', title:'Range & Variance',
+    def:'<strong>Range:</strong> The difference between the highest and lowest values (Max − Min). Quick measure of spread. Daily example: hottest vs coldest temperature recorded in your city this year.<br><br><strong>Variance (The "why it feels strange" measure):</strong> A numerical measure of how spread out data values are around the mean. Variance quantifies variability. Squaring ensures all deviations are positive and gives more weight to large deviations.<br><br>Population Variance: σ² = Σ(x−μ)²/N<br>Sample Variance: s² = Σ(x−x̄)²/(n−1)<br><br>Exam rule: If question does not explicitly state population, assume SAMPLE variance.',
+    tip:'Units are SQUARED (e.g., points²). That\'s why variance "feels strange" — you cannot directly interpret it in original units. Use Standard Deviation instead.',
+    exam_q:'Why do we divide by n−1 (not n) when calculating sample variance?',
+    exam_a:'Dividing by n−1 is Bessel\'s Correction. It corrects for bias when estimating the population variance from a sample. Using n makes the estimate too small (underestimates). n−1 makes the estimate unbiased — it corrects for the fact that we are estimating the population parameter from a sample.' },
+  { id:'c30', topic:'t7', title:'Standard Deviation & IQR',
+    def:'<strong>Standard Deviation (SD):</strong> The square root of the variance. Returns measurement to ORIGINAL UNITS. "Typical distance from the center." Memory image: SD = typical distance from the mean. If SD is in seconds → reaction time is typically X seconds from average. Population: σ = √σ². Sample: s = √s².<br><br><strong>IQR (Interquartile Range):</strong> IQR = Q3 − Q1. Measures the spread of the MIDDLE 50% of the data. IQR is RESISTANT to outliers (unlike range and SD).',
+    tip:'"SD = typical distance from the center." Memory: people differ from the mean by about SD units.',
+    examples:['Reaction time measured in seconds → SD also in seconds', 'SD = 0.4 seconds: People differ from average reaction time by about 0.4 seconds'],
+    exam_q:'Why is IQR preferred over Range when describing spread in skewed data?',
+    exam_a:'IQR (Q3−Q1) is resistant to outliers because it only uses the middle 50% of the data, ignoring extreme values. Range (Max−Min) is heavily affected by even a single extreme outlier. In skewed data, the range can be misleadingly large due to one extreme value.' },
+
+  // T8: LINEAR TRANSFORMATION
+  { id:'c31', topic:'t8', title:'Linear Transformation — x_new = a + bx',
+    def:'A <strong>linear transformation</strong> converts a variable x into a new variable x_new using the formula: x_new = a + bx. It is called LINEAR because it involves adding a constant (a) and multiplying by a constant (b). Linear transformations DO NOT change the SHAPE of a distribution. They only change: the CENTRE (mean, median) and the SPREAD (standard deviation, range).<br><br>• Everyone moves together — no one jumps ahead or falls behind<br>• The RELATIVE DISTANCES between data points are preserved',
+    tip:'Shape NEVER changes under a linear transformation. This gets tested!',
+    exam_q:'If you add 10 points to everyone\'s score, what happens to the mean, SD, and shape?',
+    exam_a:'Mean increases by 10 (shifts by a=10). SD stays the SAME (adding a constant to all values does not change spread). Shape stays the SAME (everyone moves together; relative distances unchanged). Only the CENTER shifts when adding a constant.' },
+  { id:'c32', topic:'t8', title:'Part a (shift) vs Part b (scale)',
+    def:'<strong>Part 1: a — Shifting the zero point</strong><br>The constant a shifts WHERE ZERO IS. You need a when the two measurement systems have different zero points. Example: Celsius → Fahrenheit: 0°C ≠ 0°F (0°F = −17.8°C). Without a, the conversion would be wrong.<br><br><strong>Part 2: b — Changing the unit size</strong><br>The constant b RESCALES the variable — changes how big one unit is. Example: m/s → km/h: Zero speed is the same in both systems → no shift needed (a=0). But 1 m/s = 3.6 km/h → b = 3.6. Exam sentence: "The parameter b changes the SIZE OF THE UNIT OF MEASUREMENT."',
+    tip:'Exam: Shape NEVER changes under b. When everyone is multiplied by b: symmetry stays symmetry, skewness stays skewness, modality stays modality.',
+    exam_q:'Converting temperatures from Celsius to Fahrenheit uses F = 32 + 1.8C. What do a and b represent?',
+    exam_a:'a = 32: shifts the zero point (0°C ≠ 0°F, so we need to shift by 32). b = 1.8: rescales the unit size (1°C = 1.8°F, so units are 1.8 times larger in Fahrenheit). Shape of distribution does NOT change.' },
+
+  // T9: NORMAL DISTRIBUTION
+  { id:'c33', topic:'t9', title:'Density Curves',
+    def:'A <strong>density curve</strong> is a smooth curve that approximates the overall pattern of a distribution represented by a histogram. Instead of many bars, we draw ONE smooth line.<br><br>Key properties:<br>• Always on or above the horizontal axis<br>• Total area under the curve equals 1 (100% of observations)<br>• Area under the curve = proportion of data in that range<br>• Area = 1 means "all the data together"<br>• It shows where data are concentrated',
+    tip:'"That collected part = cumulative proportion." Think of the area under a density curve as a hill made of sand — everything to the LEFT of x is "collected so far."',
+    exam_q:'What does the area under a density curve to the LEFT of a value x represent?',
+    exam_a:'It represents the CUMULATIVE PROPORTION — the proportion of observations that lie AT or BELOW value x. Because total area = 1, if 30% of area is to the left of x, then 30% of observations are below x.' },
+  { id:'c34', topic:'t9', title:'Normal Distribution',
+    def:'A <strong>normal distribution</strong> is a specific type of density curve that is PERFECTLY SYMMETRIC. It is bell-shaped with one peak. All normal distributions are density curves but NOT all density curves are normal distributions.<br><br>Notation: N(μ, σ) where μ = mean, σ = standard deviation.<br>Example: "A bell-shaped distribution with centre 282 and spread 40" → N(282, 40).<br><br>Mean on density curve: the BALANCE POINT (where curve would balance if solid). Median: equal-area point (50% of area left, 50% right).',
+    tip:'In a symmetric distribution: mean = median = mode. In skewed distribution: mean is PULLED TOWARD THE TAIL. "The mean follows the tail."',
+    examples:['Height of adults: N(170, 5)', 'IQ scores: N(100, 15)', 'Exam scores: N(75, 10)'],
+    exam_q:'What is the notation for a normal distribution, and what do the two parameters represent?',
+    exam_a:'N(μ, σ) where μ (mu) = the mean (center of distribution) and σ (sigma) = the standard deviation (spread of distribution). Example: N(282, 40) means a normal distribution with mean=282 and SD=40.' },
+  { id:'c35', topic:'t9', title:'Empirical Rule (68–95–99.7 Rule)',
+    def:'For a NORMAL DISTRIBUTION, the empirical rule states:<br>• <strong>68%</strong> of observations lie within <strong>1σ</strong> of the mean (μ±1σ)<br>• <strong>95%</strong> of observations lie within <strong>2σ</strong> of the mean (μ±2σ)<br>• <strong>99.7%</strong> of observations lie within <strong>3σ</strong> of the mean (μ±3σ)<br><br>Breakdown: 34.1% | 34.1% | 13.6% | 13.6% | 2.1% | 2.1% | 0.1% (each side)',
+    tip:'This is the 68-95-99.7 rule. Normal distribution notation is DIFFERENT from other distributions.',
+    exam_q:'In a normal distribution N(100, 15), what percentage of scores fall between 70 and 130?',
+    exam_a:'70 = 100 − 2(15) = μ − 2σ; 130 = 100 + 2(15) = μ + 2σ. According to the empirical rule (95% rule), 95% of observations lie within 2 standard deviations of the mean. So approximately 95% of scores fall between 70 and 130.' },
+
+  // T10: Z-SCORES
+  { id:'c36', topic:'t10', title:'Z-Score — What & Why',
+    def:'A <strong>z-score</strong> is a standardised value that indicates HOW MANY STANDARD DEVIATIONS an observation x is ABOVE OR BELOW THE MEAN.<br><br>Formula: z = (x − μ) / σ<br><br>Why we standardise: Different variables are on different scales (cm, kg, points). Z-scores put everything on the SAME SCALE, allowing comparison and calculation using the standard normal distribution.<br><br>Signs: z = 0 → exactly at mean; z = +1 → 1 SD above mean; z = −1 → 1 SD below mean; large z → very unusual.',
+    tip:'Memory hook: The SIGN tells direction; the SIZE tells unusualness. Most z-scores in a normal distribution are between −3 and +3.',
+    exam_q:'Why is it impossible to directly compare 180 cm to 85 points on an exam?',
+    exam_a:'Because they are on different scales with different units, means, and spreads. By converting to z-scores (z = (x−μ)/σ), we standardize both to the same ruler. 180 cm (z=+2) vs 85 points (z=+2) shows they are EQUALLY outstanding relative to their distributions.' },
+  { id:'c37', topic:'t10', title:'Standard Normal Distribution N(0,1)',
+    def:'When data are standardised into z-scores, they follow the <strong>Standard Normal Distribution N(0,1)</strong>:<br>• Mean μ = 0<br>• Standard deviation σ = 1<br><br>This is the z-distribution. Almost everyone (99.7%) has z-scores between −3 and +3. Values beyond ±3 are rare outliers.<br><br>Being within −3 to +3 is typical, not guaranteed. Outliers can still exist beyond ±3 — they are just rare.',
+    tip:'"Being within −3 to +3 is TYPICAL, not GUARANTEED."',
+    exam_q:'What is the Standard Normal Distribution and why is it useful?',
+    exam_a:'N(0,1) — mean = 0, SD = 1. When any normally distributed variable is standardized (z = (x−μ)/σ), it follows N(0,1). This is useful because: (1) allows comparison across different variables on same scale, (2) enables probability calculations using standard normal tables, (3) any normal distribution problem can be converted to N(0,1).' },
+  { id:'c38', topic:'t10', title:'Cumulative Proportion & Normal Tables',
+    def:'<strong>Cumulative Proportion:</strong> The proportion of observations in a normal distribution BELOW a given value x. Also written as P(X ≤ x).<br><br><strong>Reading Normal Tables:</strong> Standard Normal Tables give cumulative proportions for z-scores. They give the area to the LEFT of z. Give the z-score → table gives P(X ≤ z).<br><br><strong>Proportion to the RIGHT:</strong> P(X > x) = 1 − P(X ≤ x). Because total area = 1.<br><br>Example: x = 820, z = −0.99 → Table A gives 0.1622. This means 16.22% of data lies below 820. So 1 − 0.1622 = 0.8378 → 83.78% of data lies ABOVE 820.',
+    tip:'Table gives area to the LEFT. For area to the RIGHT: subtract from 1.',
+    exam_q:'The cumulative proportion for z = −0.99 is 0.1622. What percentage of the data is ABOVE this z-score?',
+    exam_a:'P(X > z) = 1 − P(X ≤ z) = 1 − 0.1622 = 0.8378 → 83.78% of data is ABOVE z = −0.99. Because total area under normal curve = 1, the area to the RIGHT = 1 minus area to the LEFT.' },
+
+  // T11: QQ PLOT & FREQUENCIES
+  { id:'c39', topic:'t11', title:'Normal Quantile Plot (Q-Q Plot)',
+    def:'A <strong>Normal Quantile Plot (Q-Q Plot)</strong> is used to ASSESS WHETHER DATA COME FROM A NORMAL DISTRIBUTION. Visual inspection of a histogram alone is not precise enough. A Q-Q plot compares: observed data values WITH expected values from a normal distribution. Each point represents one observation.<br><br>How to read: Points close to straight line → approximately normally distributed ✓. Systematic deviations from straight line → NOT normally distributed ✗. Curved shape → skewed data. S-shape → tails too heavy or too light.',
+    tip:'Memory hook: "Outliers refuse to stand in line." The optional reference line shows where normal data SHOULD be.',
+    exam_q:'A Q-Q plot shows an S-shaped deviation from the reference line. What does this indicate?',
+    exam_a:'An S-shape in a Q-Q plot indicates that the tails of the distribution are either too heavy (fat-tailed) or too light (thin-tailed) compared to a normal distribution. This is a systematic departure from normality, suggesting the data do NOT come from a normal distribution.' },
+  { id:'c40', topic:'t11', title:'Frequency Terms',
+    def:'<strong>Frequency:</strong> The number of times a specific value or score occurs. How many times something happens.<br><br><strong>Cumulative Frequency:</strong> The running total of frequencies (adding up frequency as you go down the table).<br><br><strong>Frequency Percentage:</strong> The percentage of the total sample that reported a specific value. Calculated as: (frequency / total n) × 100.<br><br><strong>Cumulative Frequency Percentage (Percentile Rank):</strong> The running total of the percentages. Tells you what percentage of the sample scored AT or BELOW a given value.',
+    exam_q:'What is a "cumulative frequency percentage" and what does it represent?',
+    exam_a:'A cumulative frequency percentage is the running total of the frequency percentages (also called Percentile Rank). It tells you what percentage of the total sample scored AT or BELOW a specific value. Example: If the cumulative frequency percentage at a score of 70 is 65%, it means 65% of the sample scored 70 or lower.' },
+  { id:'c41', topic:'t11', title:'Rate — Why We Standardize Data',
+    def:'<strong>Rate (WHY WE STANDARDIZE DATA):</strong> A rate compares an outcome relative to the number of cases. Why it matters: Counts can be MISLEADING when group sizes differ. Same count ≠ same success when group sizes differ. Rates allow FAIR COMPARISON.<br><br>University A: 100 passes out of 1000 → 10%. University B: 100 passes out of 400 → 25%. Same count (100) but very different success rates!',
+    tip:'"Same count ≠ same success." Always use rates when comparing groups of different sizes.',
+    exam_q:'Why might comparing raw counts between two groups be misleading?',
+    exam_a:'Because the groups may have different sizes. Raw counts do not account for the TOTAL NUMBER of cases. A rate (count/total × 100%) gives a fair comparison by standardizing for group size. Example: 100 passes out of 1000 (10%) vs 100 passes out of 400 (25%) — same count, very different success rates.' }
+];
+
+// ============================================================
+// FLASHCARD DATA
+// ============================================================
+const flashcards = [
+  {topic:'t1', q:'What are the 5 questions statistics always asks?', a:'(1) What kind of data do I have? (2) How are they spread? (3) Where is the middle? (4) Are there strange values? (5) Does it look normal? — Statistics answers ONE simple question: "What do my data look like?"'},
+  {topic:'t1', q:'What is a CASE in statistics?', a:'A case is WHO or WHAT is being described — an observation or instance described by a set of data. Examples: a person, a company, a country, a student.'},
+  {topic:'t1', q:'What is a VARIABLE in statistics?', a:'A variable is the TYPE OF ANSWERS PEOPLE GIVE — characteristics or properties you measure or observe that vary from case to case (e.g., age, diagnosis, test score).'},
+  {topic:'t1', q:'EDA vs Predictive: what is the key difference?', a:'EDA = uses graphs & numerical summaries to DISCOVER patterns (understand data). Predictive = uses models (e.g., regression) to FORECAST outcomes (predict one variable from another).'},
+  {topic:'t2', q:'Memory trick: How do you know a variable is categorical?', a:'"If I cannot calculate an average, it is categorical." / "You COUNT, not calculate." Categorical variables describe qualities or categories — no meaningful average is possible.'},
+  {topic:'t2', q:'What is the difference between Nominal and Ordinal variables?', a:'Nominal: categories with NO meaningful order (gender, blood type — you cannot rank them). Ordinal: categories WITH meaningful ORDER but unequal intervals (satisfaction levels — you cannot say the gap between levels is equal).'},
+  {topic:'t2', q:'Why is temperature in Celsius INTERVAL and NOT ratio?', a:'Because 0°C does NOT mean "no temperature" — it is an arbitrary zero. You CANNOT say 20°C is twice as hot as 10°C. Ratio requires a TRUE zero (absence of the quantity).'},
+  {topic:'t2', q:'What is a Label Variable? What can it NOT be?', a:'A label variable identifies cases only (ID, student number). It is NEVER analyzed statistically and is NOT an independent or dependent variable.'},
+  {topic:'t3', q:'IV, DV — which axis, which question?', a:'IV (Independent/Explanatory) → X-axis. Think: "What do we think CAUSES change?" DV (Dependent/Response) → Y-axis. Think: "What CHANGES as a result?" Pattern shows how Y responds to X.'},
+  {topic:'t3', q:'Situational vs Subject variable — key difference?', a:'Situational = environment/context the participant is PLACED IN (can be manipulated). Subject = pre-existing CHARACTERISTIC of the person (cannot be assigned). Think: "What situation vs Who the person already is."'},
+  {topic:'t3', q:'What is a Mediator variable? Give the causal chain.', a:'A mediator explains WHY X affects Y — sits IN THE MIDDLE: X → Mediator → Y. Exam language: "because," "through," "by increasing," "explains how." Example: Study time → Understanding → Exam score.'},
+  {topic:'t3', q:'What is a Moderator variable? How does it differ from a mediator?', a:'A moderator changes the STRENGTH or DIRECTION of the X→Y relationship. Does NOT sit in the middle. Exam language: "depends on," "stronger for," "weaker when," "interaction." Mediator = WHY; Moderator = WHEN/FOR WHOM.'},
+  {topic:'t4', q:'Conceptual vs Operational definition — what does each answer?', a:'Conceptual = "What do we MEAN by this concept?" (abstract, shared meaning). Operational = "HOW exactly did we MEASURE it?" (concrete, observable, replicable). A variable MUST have an operational definition to be used in research.'},
+  {topic:'t4', q:'What is a hypothetical construct? Give 3 examples.', a:'A variable that CANNOT be directly observed — inferred from behavior/responses. You observe INDICATORS, not the construct itself. Examples: Motivation, Anxiety, Intelligence, Hunger, Attention.'},
+  {topic:'t4', q:'Why do we use rates instead of counts when comparing groups?', a:'Because counts are misleading when group sizes differ. Same count ≠ same success. Rate = outcome/total × 100. Example: 100/1000 (10%) ≠ 100/400 (25%) — same count, very different rates.'},
+  {topic:'t5', q:'What is the TRIANGLE of measurement quality?', a:'Accuracy (closeness to true value — affected by bias/systematic error), Reliability (consistency/repeatability), Validity (measuring what you intend to measure). Reliable ≠ Accurate; Accurate ≠ Valid.'},
+  {topic:'t5', q:'Name the 3 types of reliability and what each assesses.', a:'Test-Retest = stability over time (same test, same people, different times). Split-Half = internal consistency (odd vs even items, same time). Interobserver = agreement between raters (different observers, same phenomenon).'},
+  {topic:'t5', q:'Name the 4 types of validity in order of importance.', a:'Face (looks valid? surface logic), Content (covers the domain? expert review), Criterion (correlates with criterion — Predictive=future, Concurrent=same time), Construct (behaves as theory predicts — Convergent=similar high; Discriminant=different low). Construct validity = most comprehensive.'},
+  {topic:'t5', q:'Predictive vs Concurrent validity — key timing rule?', a:'Predictive = criterion at LATER point in time (e.g., grades predicting future college success). Concurrent = criterion at SAME time (e.g., new IQ test vs existing IQ test given simultaneously).'},
+  {topic:'t6', q:'SOCS — what does each letter mean?', a:'S = Shape (unimodal, bimodal, symmetric, skewed?), O = Outliers (individual deviations from pattern), C = Center (mean/median where data concentrated), S = Spread (range/IQR/SD how spread out). Must be AUTOMATIC — always describe distributions using SOCS.'},
+  {topic:'t6', q:'Histogram vs Bar Chart: what is the crucial visual difference?', a:'Histogram: bars TOUCH (continuous numerical data; groups into bins). Bar chart: bars SEPARATE (categorical data; distinct groups). Bars touching = continuous data.'},
+  {topic:'t6', q:'Memory hook for skewness direction.', a:'"Mean follows the tail." Right skew: long tail RIGHT → mean > median. Left skew: long tail LEFT → mean < median. Median stays put (resistant). In symmetric distribution: mean = median = mode.'},
+  {topic:'t7', q:'Mean vs Median: when to use which?', a:'Mean: when data is symmetric, no outliers (uses all values but easily distorted). Median: when data is skewed or has outliers (resistant, stable). Exam rule: Symmetric → Mean. Skewed or outliers → Median.'},
+  {topic:'t7', q:'What is the IQR and why is it resistant to outliers?', a:'IQR = Q3 − Q1 = spread of the MIDDLE 50% of data. Resistant because it ignores the top and bottom 25% — outliers in the extreme tails do not affect the IQR calculation.'},
+  {topic:'t7', q:'State the 1.5 × IQR outlier rule.', a:'Lower fence = Q1 − 1.5(IQR). Upper fence = Q3 + 1.5(IQR). Values OUTSIDE these fences are "suspected outliers." Use phrase "suspected outliers" in exams.'},
+  {topic:'t7', q:'Why do we divide by n−1 in sample variance (Bessel\'s Correction)?', a:'To correct for bias when estimating the population variance from a sample. Dividing by n underestimates the population variance. n−1 makes the estimate UNBIASED. Called Bessel\'s Correction.'},
+  {topic:'t7', q:'What is Standard Deviation? Memory image?', a:'SD = square root of variance. Returns to original units. "Typical distance from the center." Memory: "People differ from the mean by about SD units." SD is easier to interpret than variance because it is in original units.'},
+  {topic:'t8', q:'Linear transformation formula and what each part does.', a:'x_new = a + bx. Part a: shifts the ZERO POINT (shifts the center/median by a). Part b: rescales/changes the UNIT SIZE (scales mean, SD, range by b; scales variance by b²). Shape NEVER changes under linear transformation.'},
+  {topic:'t8', q:'If you add constant a to all scores, what happens to Mean, SD, Shape?', a:'Mean: increases by a (shifts). SD: does NOT change. Shape: does NOT change. Variance: does NOT change. Adding a constant moves everyone together — relative distances unchanged.'},
+  {topic:'t8', q:'If you multiply all scores by constant b, what changes?', a:'Mean: multiplied by b. SD: multiplied by b. Variance: multiplied by b². Shape: does NOT change. Range: multiplied by b. Only variance is scaled by b² (not b) because variance is in squared units.'},
+  {topic:'t9', q:'What are the properties of a density curve?', a:'(1) Always on or above the horizontal axis. (2) Total area underneath = 1 (100% of observations). (3) Area in any region = proportion of data in that range. (4) Shows where data are concentrated. Density curve = smooth version of a histogram.'},
+  {topic:'t9', q:'Normal distribution notation and what parameters mean.', a:'N(μ, σ) where μ (mu) = mean (center), σ (sigma) = standard deviation (spread). Example: N(282, 40) = normal distribution with mean 282, SD 40. Normal distributions are density curves that are PERFECTLY SYMMETRIC.'},
+  {topic:'t9', q:'State the Empirical Rule (68-95-99.7).', a:'For a normal distribution: 68% of data lies within μ ± 1σ; 95% within μ ± 2σ; 99.7% within μ ± 3σ. Breakdown per band from center: 34.1% | 34.1% | 13.6% | 13.6% | 2.1% | 2.1% | 0.1% | 0.1%.'},
+  {topic:'t10', q:'Z-score formula and interpretation.', a:'z = (x − μ) / σ. Tells how many SD an observation is above/below the mean. z=0 → exactly at mean. z=+2 → 2 SD above mean. Sign = direction. Size = unusualness. Most z-scores between −3 and +3.'},
+  {topic:'t10', q:'Standard Normal Distribution — notation and properties.', a:'N(0,1): mean=0, SD=1. When any data are standardised to z-scores, they follow N(0,1). Allows probability calculations using tables. "Being within −3 to +3 is typical, not guaranteed."'},
+  {topic:'t10', q:'Cumulative proportion — how do you find P(X > x)?', a:'P(X > x) = 1 − P(X ≤ x). Normal tables give area to the LEFT (cumulative proportion below x). To get area to the RIGHT: subtract from 1. Example: P(X ≤ 820) = 0.1622 → P(X > 820) = 1 − 0.1622 = 0.8378.'},
+  {topic:'t10', q:'Alex (height 180cm, μ=170, σ=5) and Jamie (score 85, μ=75, σ=5). Who is more outstanding?',
+   a:'Both have z=+2: Alex: (180−170)/5=+2; Jamie: (85−75)/5=+2. They are EQUALLY outstanding relative to their distributions. Z-scores put them on the same ruler despite measuring different things.'},
+  {topic:'t11', q:'What is a Q-Q plot and what does a straight line indicate?', a:'A Q-Q plot (Normal Quantile Plot) assesses whether data come from a normal distribution. Compares observed values vs expected from normal dist. Points close to a straight line → approximately normally distributed. Curved/S-shape = NOT normal.'},
+  {topic:'t11', q:'Name the 4 frequency terms and define each.', a:'Frequency = how often a value occurs. Cumulative Frequency = running total of frequencies. Frequency Percentage = (freq/total)×100. Cumulative Frequency Percentage = running total of percentages = Percentile Rank.'},
+  {topic:'t11', q:'What are the two types of systematic deviation in Q-Q plots?', a:'Curved shape → SKEWED data. S-shape → tails too HEAVY or too LIGHT. Random small noise is fine. Patterned deviation is NOT fine. Memory hook: "Outliers refuse to stand in line."'},
+  {topic:'t11', q:'What is the optional reference line in a Q-Q plot?', a:'A reference line drawn where mean = sample mean and SD = sample standard deviation. Corresponds to a normal distribution. Serves as a BENCHMARK — shows where normal data should fall. Check: do points follow the line or drift away?'}
+];
+
+// ============================================================
+// MCQ DATA
+// ============================================================
+const mcqData = [
+  { topic:'t2', q:'A researcher records whether each participant holds a PhD, Masters, Bachelors, or no degree. What type of variable is this?',
+    opts:['Nominal — no meaningful order', 'Ordinal — has meaningful order but unequal intervals ✓', 'Interval — has equal intervals', 'Ratio — has a true zero'],
+    correct:1, fb:'Correct! Education level is ORDINAL: PhD > Masters > Bachelors > None (there is a clear ranking), but we cannot say the difference between PhD and Masters is the SAME as between Masters and Bachelors. Unequal intervals make it ordinal, not interval.' },
+  { topic:'t1', q:'Numbers without context are meaningful in statistics.',
+    opts:['True', 'False ✓'],
+    correct:1, fb:'Correct! Numbers without context are MEANINGLESS in statistics. This is a foundational principle — data always requires context (who/what was measured, how, under what conditions).' },
+  { topic:'t2', q:'Why is "0°C is twice as cold as 0°F" a logically incorrect statement?',
+    opts:['Because temperature is a nominal variable', 'Because temperature in Celsius is ordinal, not interval', 'Because the Celsius scale has an arbitrary zero — 0°C does not mean "no temperature" ✓', 'Because Fahrenheit is a ratio scale while Celsius is interval'],
+    correct:2, fb:'Correct! Celsius is an INTERVAL scale — the zero is ARBITRARY (0°C was set at the freezing point of water). Because there is no true zero, you cannot make ratio statements like "twice as cold." 0°C does NOT mean absence of temperature.' },
+  { topic:'t3', q:'Study time → Understanding → Exam score. Understanding is the ____ variable.',
+    opts:['Independent variable', 'Dependent variable', 'Mediator variable ✓', 'Moderator variable'],
+    correct:2, fb:'Correct! Understanding is the MEDIATOR — it sits in the MIDDLE of the causal chain (Study time → Understanding → Exam score) and explains HOW/WHY study time affects exam scores.' },
+  { topic:'t3', q:'The STRENGTH of the effect of study time on exam score is stronger for highly motivated students and weaker for low-motivated students. Motivation is a ____.',
+    opts:['Mediator variable', 'Moderator variable ✓', 'Dependent variable', 'Situational variable'],
+    correct:1, fb:'Correct! Motivation is the MODERATOR — it changes the STRENGTH of the relationship between study time (X) and exam score (Y). It does not sit in the middle of the causal chain but modifies how strong the X→Y effect is.' },
+  { topic:'t5', q:'A scale that consistently shows every measurement as 2 kg too heavy is:',
+    opts:['Reliable and accurate', 'Reliable but NOT accurate ✓', 'Accurate but NOT reliable', 'Neither reliable nor accurate'],
+    correct:1, fb:'Correct! The scale is RELIABLE (consistent, gives the same result repeatedly) but NOT ACCURATE (it has systematic bias — always +2 kg from true value). Key insight: Reliable ≠ Accurate. You can be consistently wrong.' },
+  { topic:'t5', q:'A researcher administers a new intelligence test AND an existing validated intelligence test to the same people on the same day. This is an example of:',
+    opts:['Predictive validity', 'Concurrent validity ✓', 'Content validity', 'Face validity'],
+    correct:1, fb:'Correct! CONCURRENT validity — comparing a new test with an established measure of the SAME construct at the SAME time. Predictive validity would require measuring the criterion at a LATER point in time.' },
+  { topic:'t6', q:'In a right-skewed distribution, which of the following is correct?',
+    opts:['Mean = Median = Mode', 'Mean < Median < Mode', 'Mode < Median < Mean ✓', 'Median > Mean'],
+    correct:2, fb:'Correct! In a right-skewed (positively skewed) distribution: Mode < Median < Mean. The mean is PULLED TOWARD THE LONG TAIL on the right. "Mean follows the tail." The median is resistant and stays closer to the bulk of data.' },
+  { topic:'t7', q:'Dataset: 4, 7, 10, 12, 15, 18, 21, 25, 30. What is Q1?',
+    opts:['7', '8.5 ✓', '10', '15'],
+    correct:1, fb:'Correct! With 9 values, the median is the 5th value = 15. Lower half: 4, 7, 10, 12. Q1 = median of lower half = (7+10)/2 = 8.5. Remember to EXCLUDE the median (15) when finding Q1 and Q3.' },
+  { topic:'t7', q:'Which measure of spread is MOST resistant to outliers?',
+    opts:['Range', 'Standard Deviation', 'IQR (Interquartile Range) ✓', 'Variance'],
+    correct:2, fb:'Correct! IQR = Q3 − Q1 uses only the MIDDLE 50% of the data, so extreme outliers (in the top or bottom 25%) have NO effect. Range and SD are both heavily affected by even a single extreme outlier.' },
+  { topic:'t8', q:'If you add 10 points to every student\'s exam score, what happens to the standard deviation?',
+    opts:['It increases by 10', 'It decreases by 10', 'It stays the same ✓', 'It is multiplied by 10'],
+    correct:2, fb:'Correct! Adding a constant (a) to all values SHIFTS the distribution but does NOT change its SHAPE or SPREAD. The standard deviation remains the same because the relative distances between data points are unchanged.' },
+  { topic:'t9', q:'According to the Empirical Rule, what percentage of observations in a normal distribution lie within 2 standard deviations of the mean?',
+    opts:['68%', '95% ✓', '99.7%', '75%'],
+    correct:1, fb:'Correct! The Empirical Rule (68-95-99.7): 68% within ±1σ, 95% within ±2σ, 99.7% within ±3σ. This only applies to NORMAL distributions.' },
+  { topic:'t10', q:'A student scores 80 on an exam where μ = 70 and σ = 5. What is their z-score?',
+    opts:['z = 1', 'z = +2 ✓', 'z = −2', 'z = 0.5'],
+    correct:1, fb:'Correct! z = (x − μ)/σ = (80 − 70)/5 = 10/5 = +2. The student is 2 standard deviations ABOVE the mean. The positive sign confirms they are above average.' },
+  { topic:'t10', q:'The cumulative proportion for a z-score is 0.8413. What percentage of data lies ABOVE this z-score?',
+    opts:['84.13%', '15.87% ✓', '50%', '0.8413%'],
+    correct:1, fb:'Correct! Cumulative proportion gives area to the LEFT. P(X > z) = 1 − P(X ≤ z) = 1 − 0.8413 = 0.1587 = 15.87%.' },
+  { topic:'t11', q:'A Q-Q plot shows an S-shaped pattern. What does this indicate?',
+    opts:['The data are normally distributed', 'The data are skewed', 'The distribution has tails that are too heavy or too light ✓', 'There are no outliers'],
+    correct:2, fb:'Correct! An S-shaped pattern in a Q-Q plot indicates the tails of the distribution are too HEAVY (leptokurtic) or too LIGHT (platykurtic) compared to a normal distribution. A straight line = normal.' },
+  { topic:'t4', q:'Which of the following is an OPERATIONAL definition of "stress"?',
+    opts:['A psychological state of perceived pressure', 'A feeling of being overwhelmed', 'Score on a validated 10-item stress questionnaire ✓', 'The body\'s response to challenging situations'],
+    correct:2, fb:'Correct! An operational definition specifies HOW a variable is measured/manipulated — it must be concrete, observable, and replicable. "Score on a 10-item stress questionnaire" tells you exactly how stress was measured.' },
+  { topic:'t5', q:'Construct validity is considered the most comprehensive form of validity because:',
+    opts:['It is easiest to assess', 'It evaluates whether the instrument behaves in accordance with all theoretical expectations about the construct ✓', 'It requires no statistical testing', 'It only assesses surface appearance'],
+    correct:1, fb:'Correct! Construct validity is the most comprehensive because it evaluates whether the entire pattern of how the instrument behaves matches THEORETICAL PREDICTIONS — including convergent validity (high correlations with similar measures) AND discriminant validity (low correlations with unrelated constructs).' },
+  { topic:'t7', q:'Why do we use (n−1) instead of n when calculating sample variance?',
+    opts:['Because we have fewer data points in a sample', 'To correct for bias in estimating population variance from a sample — Bessel\'s Correction ✓', 'To make the variance smaller', 'Because the sample always has one missing value'],
+    correct:1, fb:"Correct! Dividing by n−1 is Bessel's Correction. Dividing by n systematically UNDERESTIMATES the population variance. Dividing by n−1 corrects this bias, making the sample variance an unbiased estimator of the population variance." },
+  { topic:'t2', q:'Which variable type allows you to say "this group has twice as much as that group"?',
+    opts:['Nominal', 'Ordinal', 'Interval', 'Ratio ✓'],
+    correct:3, fb:'Correct! Only RATIO variables allow ratio statements like "twice as much" because they have a TRUE ZERO (absence of the quantity). Example: 0 kg = no weight, so 20 kg IS twice as heavy as 10 kg.' },
+  { topic:'t6', q:'When describing a distribution, the SOCS framework requires you to comment on:',
+    opts:['Statistics, Observations, Curves, Samples', 'Shape, Outliers, Center, Spread ✓', 'Skewness, Order, Clusters, Scale', 'Symmetry, Origin, Correlation, Significance'],
+    correct:1, fb:'Correct! SOCS = Shape, Outliers, Center, Spread. Must be AUTOMATIC — always describe distributions using all four components: (S) shape of graph, (O) any outliers, (C) center (mean/median), (S) spread (IQR/SD/range).' }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentView = 'mindmap';
+let fcIndex = 0;
+let fcFiltered = [...flashcards];
+let fcSeen = new Set();
+let showAllAnswers = false;
+let mcqAnswered = {};
+let mcqCorrect = 0;
+let totalSeen = 0;
+
+// ============================================================
+// RENDER CONCEPT CARDS
+// ============================================================
+function renderCards(filter='all'){
+  const grid = document.getElementById('cards-grid');
+  const data = filter === 'all' ? conceptCards : conceptCards.filter(c => c.topic === filter);
+  grid.innerHTML = '';
+  data.forEach(card => {
+    const col = TOPIC_COLORS[card.topic];
+    const div = document.createElement('div');
+    div.className = 'concept-card';
+    div.id = 'card-' + card.id;
+    div.style.borderColor = col + '30';
+    div.innerHTML = `
+      <div class="cc-header" onclick="toggleCard('${card.id}')">
+        <div class="cc-icon" style="background:${col}20;color:${col}">${TOPIC_ICONS[card.topic]}</div>
+        <div>
+          <div class="cc-title" style="color:${col}">${card.title}</div>
+          <div class="cc-topic-tag" style="color:${col}">${TOPIC_NAMES[card.topic]}</div>
+        </div>
+        <div class="cc-arrow" id="arrow-${card.id}">▸</div>
+      </div>
+      <div class="cc-body" id="body-${card.id}">
+        <div class="cc-section">
+          <div class="cc-label" style="color:${col}">Definition & Explanation</div>
+          <div class="cc-def">${card.def}</div>
+        </div>
+        ${card.examples ? `<div class="cc-section"><div class="cc-label" style="color:${col}">Examples</div><div class="cc-examples">${card.examples.map(e=>`<span class="ex-tag">${e}</span>`).join('')}</div></div>` : ''}
+        ${card.tip ? `<div class="cc-section"><div class="cc-tip">${card.tip}</div></div>` : ''}
+        ${card.warning ? `<div class="cc-section"><div class="cc-warning">${card.warning}</div></div>` : ''}
+        <div class="cc-section">
+          <div class="cc-label" style="color:${col}">Exam Question & Model Answer</div>
+          <div class="cc-exam-box" style="border-color:${col}">
+            <div class="cc-q">❓ ${card.exam_q}</div>
+            <div class="cc-a" style="color:${col === '#c9a96e' ? '#e8c87e' : col}">${card.exam_a}</div>
+          </div>
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+function toggleCard(id){
+  const body = document.getElementById('body-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  arrow.textContent = isOpen ? '▸' : '▾';
+  if(!isOpen){ totalSeen = Math.min(41, totalSeen+1); updateProgress(); }
+}
+
+function filterCards(topic, btn){
+  document.querySelectorAll('#card-filter-bar .filter-chip').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderCards(topic);
+  if(topic !== 'all') switchView('cards', null);
+}
+
+// ============================================================
+// RENDER FLASHCARDS
+// ============================================================
+function renderFC(){
+  if(!fcFiltered.length) return;
+  const card = fcFiltered[fcIndex];
+  document.getElementById('fc-q-text').textContent = card.q;
+  document.getElementById('fc-a-text').textContent = card.a;
+  document.getElementById('fc-card').classList.remove('flipped');
+  const col = TOPIC_COLORS[card.topic];
+  document.getElementById('fc-front').style.borderColor = col + '40';
+  document.getElementById('fc-back').style.borderColor = col + '40';
+  if(showAllAnswers) document.getElementById('fc-card').classList.add('flipped');
+  document.getElementById('fc-count-display').textContent = `Card ${fcIndex+1} of ${fcFiltered.length}`;
+  renderFCDots();
+}
+
+function renderFCDots(){
+  const wrap = document.getElementById('fc-dots');
+  const max = Math.min(fcFiltered.length, 40);
+  wrap.innerHTML = '';
+  for(let i=0;i<max;i++){
+    const d = document.createElement('div');
+    d.className = 'fc-dot' + (i===fcIndex?' current':'') + (fcSeen.has(i)?' seen':'');
+    d.onclick = (()=>{ const idx=i; return ()=>{ fcIndex=idx; renderFC(); }; })();
+    wrap.appendChild(d);
+  }
+}
+
+function flipFC(){
+  const card = document.getElementById('fc-card');
+  card.classList.toggle('flipped');
+  fcSeen.add(fcIndex);
+  totalSeen = Math.max(totalSeen, fcSeen.size);
+  updateProgress();
+  renderFCDots();
+}
+
+function moveFC(dir){
+  fcIndex = (fcIndex + dir + fcFiltered.length) % fcFiltered.length;
+  renderFC();
+}
+
+function shuffleFC(){
+  for(let i=fcFiltered.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [fcFiltered[i],fcFiltered[j]]=[fcFiltered[j],fcFiltered[i]];
+  }
+  fcIndex=0; fcSeen.clear(); renderFC();
+}
+
+function filterFC(topic){
+  fcFiltered = topic === 'all' ? [...flashcards] : flashcards.filter(f=>f.topic===topic);
+  fcIndex=0; fcSeen.clear(); renderFC();
+}
+
+function toggleShowAll(){
+  showAllAnswers = !showAllAnswers;
+  const btn = document.getElementById('btn-showall');
+  btn.classList.toggle('active', showAllAnswers);
+  renderFC();
+}
+
+function resetFCProgress(){
+  fcSeen.clear(); fcIndex=0; showAllAnswers=false;
+  document.getElementById('btn-showall').classList.remove('active');
+  renderFC();
+}
+
+// ============================================================
+// RENDER MCQ
+// ============================================================
+function renderMCQ(){
+  const grid = document.getElementById('mcq-grid');
+  grid.innerHTML = '';
+  mcqData.forEach((q, qi) => {
+    const col = TOPIC_COLORS[q.topic];
+    const div = document.createElement('div');
+    div.className = 'mcq-card';
+    div.id = 'mcq-' + qi;
+    div.style.borderColor = col + '30';
+    const opts = q.opts.map((o,oi) => {
+      const displayText = o.replace(' ✓', '');
+      return `<button class="mcq-opt" id="mcqopt-${qi}-${oi}" onclick="answerMCQ(${qi},${oi})">${displayText}</button>`;
+    }).join('');
+    div.innerHTML = `
+      <div class="mcq-num" style="color:${col}">${TOPIC_ICONS[q.topic]} ${TOPIC_NAMES[q.topic]}</div>
+      <div class="mcq-q">Q${qi+1}. ${q.q}</div>
+      <div class="mcq-options">${opts}</div>
+      <div class="mcq-feedback" id="mcq-fb-${qi}"></div>`;
+    grid.appendChild(div);
+  });
+  updateMCQScore();
+}
+
+function answerMCQ(qi, oi){
+  if(mcqAnswered[qi] !== undefined) return;
+  mcqAnswered[qi] = oi;
+  const q = mcqData[qi];
+  const isCorrect = oi === q.correct;
+  if(isCorrect) mcqCorrect++;
+  // Mark options
+  q.opts.forEach((_,i) => {
+    const btn = document.getElementById(`mcqopt-${qi}-${i}`);
+    if(i === q.correct){ btn.classList.add('correct'); }
+    else if(i === oi && !isCorrect){ btn.classList.add('wrong'); }
+    btn.disabled = true;
+  });
+  const fb = document.getElementById(`mcq-fb-${qi}`);
+  fb.className = 'mcq-feedback show ' + (isCorrect ? 'correct' : 'wrong');
+  fb.textContent = q.fb;
+  updateMCQScore();
+}
+
+function updateMCQScore(){
+  const answered = Object.keys(mcqAnswered).length;
+  document.getElementById('mcq-score-display').textContent = mcqCorrect;
+  document.getElementById('mcq-score-label').textContent = `/ ${answered} answered`;
+  const pct = answered > 0 ? Math.round((mcqCorrect/answered)*100) : 0;
+  document.getElementById('mcq-score-pct').textContent = answered > 0 ? `${pct}% correct` : 'Start answering questions below';
+}
+
+function resetMCQ(){
+  mcqAnswered = {}; mcqCorrect = 0;
+  renderMCQ();
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function updateProgress(){
+  const pct = Math.min(100, Math.round((totalSeen / 41)*100));
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-stat').textContent = `${totalSeen} / 41 cards seen`;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchView(name, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  currentView = name;
+}
+
+function filterTopic(topic, btn){
+  switchView('cards', null);
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  filterCards(topic, null);
+  document.querySelectorAll('#card-filter-bar .filter-chip').forEach(b => {
+    b.classList.remove('active');
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes(`'${topic}'`)) b.classList.add('active');
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderCards('all');
+  renderFC();
+  renderMCQ();
+  updateProgress();
+});
+</script>
+</body>
+</html>
